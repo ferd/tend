@@ -29,9 +29,9 @@ start() ->
 %% API
 %% -----------------------------------------------------------------------------
 load(Url) ->
-    Downloaded = tend_loader:load_url(Url,
-                                      application:get_env(tend, src),
-                                      application:get_env(tend, lib_dir)),
+    {ok, Srcdir} = application:get_env(tend, src),
+    {ok, Libdir} = application:get_env(tend, lib_dir),
+    Downloaded = tend_loader:load_url(Url, Srcdir, Libdir),
     Unsupported = [FailedUrl || {Ret, FailedUrl} <- Downloaded,
                                 Ret =/= module andalso
                                 Ret =/= app
@@ -66,7 +66,7 @@ clean_up() ->
 %% Internal API
 %% -----------------------------------------------------------------------------
 compile_modules(Modules) ->
-    Ebin = application:get_env(tend, ebin),
+    {ok, Ebin} = application:get_env(tend, ebin),
     [{ok, _M} = tend_compile_module:compile(M, Ebin) || M <- Modules],
     ok.
 
