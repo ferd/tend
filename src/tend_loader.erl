@@ -14,7 +14,6 @@ load_url(Url, Outdir) ->
     {{_Vsn, 200, "OK"},
      Headers,
      Body} = Response,
-    io:format("~p~n", [Headers]),
     {"content-type", Content_type} = remove_encoding(
                                        proplists:lookup("content-type",
                                                         Headers)),
@@ -32,8 +31,10 @@ dispatch(Url, "text/plain", Body, Outdir) ->
     Basename = filename:basename(Uri#ex_uri.path),
     ok = file:write_file(filename:join(Outdir, Basename), Body),
     [{ok, Url}];
-dispatch(_Url, "application/zip", _Body, _Outdir) ->
-    ok;
+dispatch(Url, Ct, Body, Outdir)
+  when Ct =:= "application/zip" orelse Ct =:= "application/octet-stream" ->
+    {ok, _Files} = zip:unzip(list_to_binary(Body), [{cwd, Outdir}]),
+    [{ok, Url}];
 dispatch(_Url, _Content_type, _Body, _Outdir) ->
     {error, unsupported_content_type}.
 
