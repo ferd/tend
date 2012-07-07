@@ -9,13 +9,13 @@
         ]).
 
 
-load(Path) ->
+load(_Path) ->
     ok = not_implemented.
 
 resume() ->
     ok = not_implemented.
 
-set_dir(Dir) ->
+set_dir(_Dir) ->
     ok = not_implemented.
 
 get_dir() ->
