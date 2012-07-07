@@ -29,16 +29,22 @@ guess_root(Dirs) ->
     %% We guess that based on the common Erlang repo, the root
     %% of the application is the level above 'src/' or 'ebin/'
     Fragments = [filename:split(X) || X <- Dirs],
+    MakeDir = fragments_to_base(Fragments, "Makefile"),
+    RebarDir = fragments_to_base(Fragments, "rebar"),
+    EmakeDir = fragments_to_base(Fragments, "Emakefile"),
     SrcDirs = fragments_to_base(Fragments, "src"),
     EbinDirs = fragments_to_base(Fragments, "ebin"),
     InclDirs = fragments_to_base(Fragments, "include"),
-    Dict = lists:foldl(fun(Path, Dict) ->
-                           dict:update(Path, fun(X) -> X+1 end, 1, Dict)
-                        end,
-                        dict:new(),
-                        SrcDirs ++ EbinDirs ++ InclDirs),
-    {Path, _Count} = hd(lists:reverse(lists:keysort(2, dict:to_list(Dict)))),
-    Path.
+    case shortest_sort(MakeDir++RebarDir++EmakeDir) of
+        [] -> % precompiled dir?
+            [{Path,_}|_] = most_instances(SrcDirs++EbinDirs++InclDirs),
+            Path;
+        [{Len,_}, {Len,_}] -> % it's a tie!
+            [{Path,_}|_] = most_instances(SrcDirs++EbinDirs++InclDirs),
+            Path;
+        [{_, Path}|_] ->
+            Path
+    end.
 
 
 %% -----------------------------------------------------------------------------
@@ -94,6 +100,17 @@ remove_encoding({"content-type", Ct}) ->
 fragments_to_base(Fragments, Pattern) ->
     [filename:join(lists:takewhile(fun(X) -> X =/= Pattern end, L)) ||
         L <- Fragments, lists:member(Pattern, L)].
+
+shortest_sort(L) ->
+    lists:sort([{length(P), P} || P <- L]).
+
+most_instances(L) ->
+    Dict = lists:foldl(fun(Path, Dict) ->
+                           dict:update(Path, fun(X) -> X+1 end, 1, Dict)
+                        end,
+                        dict:new(),
+                        L),
+    lists:reverse(lists:keysort(2, dict:to_list(Dict))).
 
 join_url(Base, Url) ->
     io:format("~p~n", [{Base, Url}]),
