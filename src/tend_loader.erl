@@ -26,11 +26,12 @@ guess_root(Dirs) ->
     Fragments = [filename:split(X) || X <- Dirs],
     SrcDirs = fragments_to_base(Fragments, "src"),
     EbinDirs = fragments_to_base(Fragments, "ebin"),
+    InclDirs = fragments_to_base(Fragments, "include"),
     Dict = lists:foldl(fun(Path, Dict) ->
                            dict:update(Path, fun(X) -> X+1 end, 1, Dict)
                         end,
                         dict:new(),
-                        SrcDirs ++ EbinDirs),
+                        SrcDirs ++ EbinDirs ++ InclDirs),
     {Path, _Count} = hd(lists:keysort(2, dict:to_list(Dict))),
     Path.
 
@@ -46,15 +47,15 @@ dispatch(Url, "text/html", Body, Srcdir, Libdir) ->
                end,
                 [],
                 Urls);
-dispatch(Url, "text/plain", Body, Srcdir, _Libdir) ->
-    {ok, Uri, []} = ex_uri:decode(Url),
-    Basename = filename:basename(Uri#ex_uri.path),
-    ok = file:write_file(filename:join(Srcdir, Basename), Body),
-    [{ok, Url}];
-dispatch(Url, Ct, Body, _Srcdir, Libdir)
+dispatch(_Url, "text/plain", Body, Srcdir, _Libdir) ->
+    {match, [ModName]} = re:run(Body, "-module\\((.*)\\).",[{capture, all_but_first, list}]),
+    ModPath = filename:join(Srcdir, ModName)++".erl",
+    ok = file:write_file(ModPath, Body),
+    [{module, ModPath}];
+dispatch(_Url, Ct, Body, _Srcdir, Libdir)
   when Ct =:= "application/zip" orelse Ct =:= "application/octet-stream" ->
-    {ok, _Files} = zip:unzip(list_to_binary(Body), [{cwd, Libdir}]),
-    [{ok, Url}];
+    {ok, Files} = zip:unzip(list_to_binary(Body), [{cwd, Libdir}]),
+    [{app, guess_root(Files)}];
 dispatch(_Url, _Content_type, _Body, _Srcdir, _Libdir) ->
     {error, unsupported_content_type}.
 

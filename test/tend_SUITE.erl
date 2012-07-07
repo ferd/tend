@@ -149,11 +149,13 @@ loader_test(Config) ->
     {ok, LibDir} = application:get_env(tend, lib_dir),
     {ok, Src} = application:get_env(tend, src),
     ct:pal("the vars are: ~p", [{LibDir, Src}]),
-    [{ok, _}] = tend_loader:load_url(BaseURI ++ "html/erl",
-                                     Src,
-                                     LibDir),
-    [{ok, _}] = tend_loader:load_url(BaseURI ++ "module/tend_test_app.zip",
-                                     Src, LibDir).
+    ModName = filename:join(Src, "tend_test_mod.erl"),
+    [{module, ModName}] = tend_loader:load_url(BaseURI ++ "html/erl",
+                                               Src,
+                                               LibDir),
+    AppPath = filename:join(LibDir, "tend_test_app"),
+    [{app, AppPath}] = tend_loader:load_url(BaseURI ++ "module/tend_test_app.zip",
+                                           Src, LibDir).
 
 guess_root(_Config) ->
     Batch1 = ["ferd-zippers-d646699/.gitignore",
