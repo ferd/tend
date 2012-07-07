@@ -1,6 +1,6 @@
 -module(tend_loader).
 
--export([load_url/2]).
+-export([load_url/3]).
 
 -include_lib("ex_uri/include/ex_uri.hrl").
 
@@ -9,7 +9,7 @@
 %% -----------------------------------------------------------------------------
 %% API
 %% -----------------------------------------------------------------------------
-load_url(Url, Outdir) ->
+load_url(Url, Srcdir, Libdir) ->
     {ok, Response} = httpc:request(Url),
     {{_Vsn, 200, "OK"},
      Headers,
@@ -17,44 +17,44 @@ load_url(Url, Outdir) ->
     {"content-type", Content_type} = remove_encoding(
                                        proplists:lookup("content-type",
                                                         Headers)),
-    dispatch(Url, Content_type, Body, Outdir).
+    dispatch(Url, Content_type, Body, Srcdir, Libdir).
 
 
 
 %% -----------------------------------------------------------------------------
 %% Internal API
 %% -----------------------------------------------------------------------------
-dispatch(_Url, "text/html", Body, Outdir) ->
-    load_links(Body, Outdir);
-dispatch(Url, "text/plain", Body, Outdir) ->
+dispatch(_Url, "text/html", Body, Srcdir, Libdir) ->
+    load_links(Body, Srcdir, Libdir);
+dispatch(Url, "text/plain", Body, Srcdir, _Libdir) ->
     {ok, Uri, []} = ex_uri:decode(Url),
     Basename = filename:basename(Uri#ex_uri.path),
-    ok = file:write_file(filename:join(Outdir, Basename), Body),
+    ok = file:write_file(filename:join(Srcdir, Basename), Body),
     [{ok, Url}];
-dispatch(Url, Ct, Body, Outdir)
+dispatch(Url, Ct, Body, _Srcdir, Libdir)
   when Ct =:= "application/zip" orelse Ct =:= "application/octet-stream" ->
-    {ok, _Files} = zip:unzip(list_to_binary(Body), [{cwd, Outdir}]),
+    {ok, _Files} = zip:unzip(list_to_binary(Body), [{cwd, Libdir}]),
     [{ok, Url}];
-dispatch(_Url, _Content_type, _Body, _Outdir) ->
+dispatch(_Url, _Content_type, _Body, _Srcdir, _Libdir) ->
     {error, unsupported_content_type}.
 
 
 
-load_links(Body, Outdir) ->
-    [_|_] = load_ls(mochiweb_html:parse(Body), Outdir).
+load_links(Body, Srcdir, Libdir) ->
+    [_|_] = load_ls(mochiweb_html:parse(Body), Srcdir, Libdir).
 
-load_ls([], _Outdir) ->
+load_ls([], _Srcdir, _Libdir) ->
     [];
-load_ls([{<<"link">>, Attrs, _Text} | Rest], Outdir) ->
+load_ls([{<<"link">>, Attrs, _Text} | Rest], Srcdir, Libdir) ->
     case {proplists:lookup(<<"rel">>, Attrs),
           proplists:lookup(<<"href">>, Attrs)} of
         {{<<"rel">>, ?REL_ATTR},
-         {<<"link">>, Url}}       -> [load_url(Url, Outdir)
-                                      | load_ls(Rest, Outdir)];
-        {_, _}                    -> load_ls(Rest, Outdir)
+         {<<"link">>, Url}}       -> [load_url(Url, Srcdir, Libdir)
+                                      | load_ls(Rest, Srcdir, Libdir)];
+        {_, _}                    -> load_ls(Rest, Srcdir, Libdir)
     end;
-load_ls([ _Tag | Rest], Outdir) ->
-    load_ls(Rest, Outdir).
+load_ls([ _Tag | Rest], Srcdir, Libdir) ->
+    load_ls(Rest, Srcdir, Libdir).
 
 
 remove_encoding({"content-type", Ct}) ->
