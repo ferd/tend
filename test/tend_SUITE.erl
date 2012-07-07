@@ -3,7 +3,9 @@
 -include_lib("common_test/include/ct.hrl").
 -compile(export_all).
 
-all() -> [server_works, loading_lib_dirs, loader_test, guess_root].
+all() ->
+    [server_works, loading_lib_dirs, loader_test, guess_root,
+     compile_module].
 
 %%% INITS
 init_per_suite(Config) ->
@@ -221,3 +223,15 @@ guess_root(_Config) ->
               "code/ferd-zippers-d646699/test/zipper_forests_tests.erl",
               "code/ferd-zippers-d646699/test/zipper_lists_tests.erl"],
     "code/ferd-zippers-d646699" = tend_loader:guess_root(Batch3).
+
+compile_module(Config) ->
+    Priv = ?config(priv_dir, Config),
+    Unique = lists:flatten(io_lib:format("~p",[make_ref()])),
+    Mod = "-module(compile_mod_test_mod). "
+          "-export([main/0]). "
+          "main() -> \"" ++ Unique ++ "\". ",
+    Path = filename:join(Priv, "compile_mod_test_mod.erl"),
+    file:write_file(Path, Mod),
+    tend_compile_module:compile(Path, Priv),
+    code:add_patha(Priv),
+    Unique = compile_mod_test_mod:main().

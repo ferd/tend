@@ -38,3 +38,4 @@ ferd, July 7, 09:43 EST: After talking with Orbitz, it was decided to also suppo
 
 ferd, July 7, 13:17 EST: Managed to get Tend to boot up as an app file and get all paths set up right for existing libraries. I had to steal code server.erl code just to be able to do that thing right. It seems to work though, which is great.
 
+ferd, July 7, 18:12 EST: busy day! Orbitz managed to write the code loading stuff, and we're now both working on getting files compiled. Things are going well.
