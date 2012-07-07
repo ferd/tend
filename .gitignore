@@ -8,3 +8,4 @@ doc/*.css
 doc/edoc-info
 logs/*
 deps/*
+ebin/*
