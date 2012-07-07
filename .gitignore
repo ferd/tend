@@ -6,3 +6,5 @@ doc/*.html
 doc/*.png
 doc/*.css
 doc/edoc-info
+logs/*
+deps/*
