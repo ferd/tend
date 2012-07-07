@@ -3,7 +3,7 @@
 -include_lib("common_test/include/ct.hrl").
 -compile(export_all).
 
-all() -> [server_works, loading_lib_dirs].
+all() -> [server_works, loading_lib_dirs, loader_test].
 
 %%% INITS
 init_per_suite(Config) ->
@@ -38,11 +38,28 @@ init_per_testcase(loading_lib_dirs, Config) ->
     OriginalLibDir = application:get_env(tend, lib_dir),
     application:set_env(tend, lib_dir, LibDir),
     [{lib_dir, OriginalLibDir} | Config];
+init_per_testcase(loader_test, Config) ->
+    %% Make a lib_dir custom in priv/ to test if we boot while
+    %% correctly loading libs.
+    Priv = ?config(priv_dir, Config),
+    LibDir = filename:join(Priv, "loader-test_testdir/"),
+    filelib:ensure_dir(LibDir++"/.ignore"),
+    OriginalLibDir = application:get_env(tend, lib_dir),
+    application:set_env(tend, lib_dir, LibDir),
+    {ok, Pid} = tend_sup:start_link(),
+    [{lib_dir, OriginalLibDir},
+     {sup, Pid}
+     | Config];
 init_per_testcase(_, Config) ->
     Config.
 
 end_per_testcase(loading_lib_dirs, Config) ->
     application:set_env(tend, lib_dir, ?config(lib_dir, Config));
+end_per_testcase(loader_test, Config) ->
+    application:set_env(tend, lib_dir, ?config(lib_dir, Config)),
+    Sup = ?config(sup, Config),
+    unlink(Sup),
+    exit(Sup, kill);
 end_per_testcase(_, Config) ->
     Config.
 
@@ -126,3 +143,10 @@ loading_lib_dirs(Config) ->
     %% Kill the sup. Tiny clean up in case we succeed
     unlink(Pid),
     exit(Pid, kill).
+
+loader_test(Config) ->
+    BaseURI = ?config(base, Config),
+    {ok, LibDir} = application:get_env(tend, lib_dir),
+    {ok, Src} = application:get_env(tend, src),
+    ct:pal("the vars are: ~p", [{LibDir, Src}]),
+    ct:pal("URL to an ERL file: ~p", [BaseURI ++ "html/erl"]).
