@@ -1,6 +1,6 @@
 -module(tend_loader).
 
--export([load_url/3]).
+-export([load_url/3, guess_root/1]).
 
 -include_lib("ex_uri/include/ex_uri.hrl").
 
@@ -19,6 +19,19 @@ load_url(Url, Srcdir, Libdir) ->
                                                         Headers)),
     dispatch(Url, Content_type, Body, Srcdir, Libdir).
 
+guess_root(Dirs) ->
+    %% We guess that based on the common Erlang repo, the root
+    %% of the application is the level above 'src/' or 'ebin/'
+    Fragments = [filename:split(X) || X <- Dirs],
+    SrcDirs = fragments_to_base(Fragments, "src"),
+    EbinDirs = fragments_to_base(Fragments, "ebin"),
+    Dict = lists:foldl(fun(Path, Dict) ->
+                           dict:update(Path, fun(X) -> X+1 end, 1, Dict)
+                        end,
+                        dict:new(),
+                        SrcDirs ++ EbinDirs),
+    {Path, _Count} = hd(lists:keysort(2, dict:to_list(Dict))),
+    Path.
 
 
 %% -----------------------------------------------------------------------------
@@ -62,3 +75,7 @@ remove_encoding({"content-type", Ct}) ->
     %% encoding since we are just passing the data
     %% through to the system
     {"content-type", erlang:hd(string:tokens(Ct, ";"))}.
+
+fragments_to_base(Fragments, Pattern) ->
+    [filename:join(lists:takewhile(fun(X) -> X =/= Pattern end, L)) ||
+        L <- Fragments, lists:member(Pattern, L)].
