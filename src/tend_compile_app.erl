@@ -5,8 +5,11 @@
 compile(App) ->
     case compile_type(App) of
         makefile ->
+            [chmod_rebar(filename:join(App, "rebar"))
+             || filelib:is_file(filename:join(App, "rebar"))],
             run_cmd(App, "make");
         rebar ->
+            chmod_rebar(filename:join(App, "rebar")),
             run_cmd(App, "rebar get-deps"),
             run_cmd(App, "rebar compile");
         emakefile ->
@@ -14,6 +17,7 @@ compile(App) ->
         unknown ->
             erlang:error({unknown_compile_type, App})
     end,
+    lists:foreach(fun code:add_pathz/1, find_ebins(App)),
     ok.
 
 
@@ -52,3 +56,9 @@ wait_for_exit(Port) ->
         {Port, _} ->
             wait_for_exit(Port)
     end.
+
+chmod_rebar(Rebar) ->
+    os:cmd("chmod +x " ++ Rebar).
+
+find_ebins(App) ->
+    string:tokens(os:cmd("find " ++ App ++ " -name ebin"), "\n").
