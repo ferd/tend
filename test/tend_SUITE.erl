@@ -151,4 +151,6 @@ loader_test(Config) ->
     ct:pal("the vars are: ~p", [{LibDir, Src}]),
     [{ok, _}] = tend_loader:load_url(BaseURI ++ "html/erl",
                                      Src,
-                                     LibDir).
+                                     LibDir),
+    [{ok, _}] = tend_loader:load_url(BaseURI ++ "module/tend_test_app.zip",
+                                     Src, LibDir).
