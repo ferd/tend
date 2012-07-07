@@ -62,4 +62,14 @@ server_works(Config) ->
     [{"tend_test_app/ebin/tend_test_app.app", _},
      {"tend_test_app/ebin/tend_test_mod.beam", _},
      {"tend_test_app/include/tend_test_app.hrl", _},
-     {"tend_test_app/src/tend_test_mod.erl", _}] = lists:sort(EzList).
+     {"tend_test_app/src/tend_test_mod.erl", _}] = lists:sort(EzList),
+    %% HTML page with links
+    {ok, {{_, 200, _}, _,
+      "<html>" ++ _}} = httpc:request(BaseURI++"html/erl"),
+    {ok, {{_, 200, _}, _,
+      "<html>" ++ _}} = httpc:request(BaseURI++"html/beam"),
+    {ok, {{_, 200, _}, _,
+      "<html>" ++ _}} = httpc:request(BaseURI++"html/zip"),
+    {ok, {{_, 200, _}, _,
+      "<html>" ++ _}} = httpc:request(BaseURI++"html/ez").
+

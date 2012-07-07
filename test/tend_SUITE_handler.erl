@@ -21,6 +21,14 @@ terminate(_Req, _State) ->
 
 %% TODO: add failures (404s, etc.)
 %% TODO: serve a page with <link /> tags that lead to one of these.
+routing(Req@, 'GET', [<<"html">>, TypeLinked], State) ->
+    {ok, Req@} = cowboy_http_req:reply(
+        200,
+        [{<<"Content-Type">>, <<"text/html">>}],
+        html_page(TypeLinked),
+        Req@
+    ),
+    {ok, Req@, State};
 routing(Req@, 'GET', [<<"module">>, ModName], State = #state{dir=Dir}) ->
     Mod = filename:rootname(filename:basename(ModName)),
     {Payload, ContentType} = case filename:extension(ModName) of
@@ -66,3 +74,23 @@ find_ez_otp_app(<<"tend_test_app">>, Dir) ->
                                           memory]),
     Bin.
 
+%% Note to Orbitz: feel free to change the format names
+%% TODO: test with absolute paths too!
+%% TODO: test with more than one link!
+html_page(TypeLinked) ->
+   {Rel, Mime, Link} =  case TypeLinked of
+        <<"erl">> -> {"erl", "text/plain", "module/tend_test_mod.erl"};
+        <<"beam">> -> {"beam", "application/octet-stream", "module/tend_test_mod.beam"};
+        <<"zip">> -> {"zip", "application/zip", "module/tend_test_app.zip"};
+        <<"ez">> -> {"ez", "application/ez", "module/tend_test_app.ez"}
+    end,
+    "<html>"
+     "<head>"
+      "<title>Some demo fake page</title>"
+      "<link rel=\"erlang-"++Rel++"\" type=\""++Mime++"\" href=\""++Link++"\" />"
+     "</head>"
+     "<body>"
+      "<h1>Welcome to my tutorial!</h1>"
+      "<p>Hello, Friends!</p>"
+     "</body>"
+    "</html>".
