@@ -29,7 +29,9 @@ start() ->
 %% API
 %% -----------------------------------------------------------------------------
 load(Url) ->
-    Downloaded = tend_loader:load_url(Url),
+    Downloaded = tend_loader:load_url(Url,
+                                      application:get_env(tend, src),
+                                      application:get_env(tend, lib_dir)),
     Unsupported = [FailedUrl || {Ret, FailedUrl} <- Downloaded,
                                 Ret =/= module andalso
                                 Ret =/= app

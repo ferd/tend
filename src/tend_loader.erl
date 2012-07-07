@@ -13,7 +13,6 @@
 %% API
 %% -----------------------------------------------------------------------------
 load_url(Url, Srcdir, Libdir) ->
-    io:format("~s~n", [Url]),
     {ok, Response} = httpc:request(Url),
     {{_Vsn, 200, "OK"},
      Headers,
