@@ -58,6 +58,9 @@ find_source_module(<<"tend_test_mod">>, Dir) ->
     {ok, Txt} = file:read_file(filename:join(Dir, <<"tend_test_mod.erl">>)),
     Txt.
 
+find_zipped_otp_app(<<"zippers-0.1">>, Dir) ->
+    {ok, Bin} = file:read_file(filename:join(Dir, <<"zippers-0.1.zip">>)),
+    Bin;
 find_zipped_otp_app(<<"tend_test_app">>, Dir) ->
     {ok, {_FileName, Bin}} =  zip:create("tend_test_app.zip",
                                          ["tend_test_app"],

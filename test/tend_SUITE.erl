@@ -53,6 +53,14 @@ server_works(Config) ->
      {"tend_test_app/ebin/tend_test_mod.beam", _},
      {"tend_test_app/include/tend_test_app.hrl", _},
      {"tend_test_app/src/tend_test_mod.erl", _}] = lists:sort(ZipList),
+    %% rebarized zip file
+    {ok, 
+     {{_, 200, _},
+      _,
+      RZip}} = httpc:request(get, {BaseURI++"module/zippers-0.1.zip",[]}, [], [{body_format, binary}]),
+    {ok, RZipList} = zip:unzip(RZip, [memory]),
+    [{"ferd-zippers-"++_, _},
+     {"ferd-zippers-"++_, _} | _] = lists:sort(RZipList),
     %% .EZ archive
     {ok, 
      {{_, 200, _},
