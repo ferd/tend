@@ -90,7 +90,7 @@ html_page(TypeLinked) ->
     "<html>"
      "<head>"
       "<title>Some demo fake page</title>"
-      "<link rel=\"erlang-tend\" type=\""++Mime++"\" href=\""++Link++"\" />"
+      "<link rel=\"erlang-tend\" type=\""++Mime++"\" href=\"/"++Link++"\" />"
      "</head>"
      "<body>"
       "<h1>Welcome to my tutorial!</h1>"

@@ -10,6 +10,7 @@
 %% API
 %% -----------------------------------------------------------------------------
 load_url(Url, Srcdir, Libdir) ->
+    io:format("~s~n", [Url]),
     {ok, Response} = httpc:request(Url),
     {{_Vsn, 200, "OK"},
      Headers,
@@ -37,8 +38,14 @@ guess_root(Dirs) ->
 %% -----------------------------------------------------------------------------
 %% Internal API
 %% -----------------------------------------------------------------------------
-dispatch(_Url, "text/html", Body, Srcdir, Libdir) ->
-    load_links(Body, Srcdir, Libdir);
+dispatch(Url, "text/html", Body, Srcdir, Libdir) ->
+    Links = load_links(Body),
+    Urls = lists:map(fun (Ur) -> join_url(Url, Ur) end, Links),
+    lists:foldl(fun (Link_url, Acc) ->
+                       Acc ++ load_url(Link_url, Srcdir, Libdir)
+               end,
+                [],
+                Urls);
 dispatch(Url, "text/plain", Body, Srcdir, _Libdir) ->
     {ok, Uri, []} = ex_uri:decode(Url),
     Basename = filename:basename(Uri#ex_uri.path),
@@ -53,21 +60,23 @@ dispatch(_Url, _Content_type, _Body, _Srcdir, _Libdir) ->
 
 
 
-load_links(Body, Srcdir, Libdir) ->
-    [_|_] = load_ls(mochiweb_html:parse(Body), Srcdir, Libdir).
+load_links(Body) ->
+    [_|_] = load_ls([mochiweb_html:parse(Body)]).
 
-load_ls([], _Srcdir, _Libdir) ->
+load_ls([]) ->
     [];
-load_ls([{<<"link">>, Attrs, _Text} | Rest], Srcdir, Libdir) ->
+load_ls([Text]) when is_binary(Text) ->
+    [];
+load_ls([{<<"link">>, Attrs, _Text} | Rest]) ->
     case {proplists:lookup(<<"rel">>, Attrs),
           proplists:lookup(<<"href">>, Attrs)} of
         {{<<"rel">>, ?REL_ATTR},
-         {<<"link">>, Url}}       -> [load_url(Url, Srcdir, Libdir)
-                                      | load_ls(Rest, Srcdir, Libdir)];
-        {_, _}                    -> load_ls(Rest, Srcdir, Libdir)
+         {<<"href">>, Url}}       -> [binary_to_list(Url) | load_ls(Rest)];
+        {_, _}                    -> load_ls(Rest)
     end;
-load_ls([ _Tag | Rest], Srcdir, Libdir) ->
-    load_ls(Rest, Srcdir, Libdir).
+load_ls([{_Tag, _Attrs, Content} | Rest]) ->
+    load_ls(Content) ++ load_ls(Rest).
+
 
 
 remove_encoding({"content-type", Ct}) ->
@@ -79,3 +88,13 @@ remove_encoding({"content-type", Ct}) ->
 fragments_to_base(Fragments, Pattern) ->
     [filename:join(lists:takewhile(fun(X) -> X =/= Pattern end, L)) ||
         L <- Fragments, lists:member(Pattern, L)].
+
+join_url(Base, Url) ->
+    io:format("~p~n", [{Base, Url}]),
+    case Url of
+        "https://" ++ _ -> Url;
+        "http://"  ++ _ -> Url;
+        "/"        ++ _ -> {ok, Uri, []} = ex_uri:decode(Base),
+                           ex_uri:encode(Uri#ex_uri{path = Url});
+        _               -> string:strip(Base, right, $/) ++ "/" ++ Url
+    end.
