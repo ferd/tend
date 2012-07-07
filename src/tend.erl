@@ -30,14 +30,14 @@ start() ->
 %% -----------------------------------------------------------------------------
 load(Url) ->
     Downloaded = tend_loader:load_url(Url),
-    Unsupported = [Url || {Ret, Url} <- Downlaoded,
-                          Ret =/= module andalso
-                          Ret =/= app
+    Unsupported = [FailedUrl || {Ret, FailedUrl} <- Downloaded,
+                                Ret =/= module andalso
+                                Ret =/= app
                   ],
     case Unsupported of
         [] ->
-            Modules = [Module || {module, File} <- Downloaded],
-            Apps    = [App    || {app,    App } <- Downlaoded],
+            Modules = [Mod || {module, Mod} <- Downloaded],
+            Apps    = [App || {app,    App} <- Downloaded],
             ok      = compile_modules(Modules),
             ok      = compile_apps(Apps),
             ok;
