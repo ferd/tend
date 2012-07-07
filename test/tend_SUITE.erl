@@ -149,4 +149,6 @@ loader_test(Config) ->
     {ok, LibDir} = application:get_env(tend, lib_dir),
     {ok, Src} = application:get_env(tend, src),
     ct:pal("the vars are: ~p", [{LibDir, Src}]),
-    ct:pal("URL to an ERL file: ~p", [BaseURI ++ "html/erl"]).
+    [{ok, _}] = tend_loader:load_url(BaseURI ++ "html/erl",
+                                     Src,
+                                     LibDir).
