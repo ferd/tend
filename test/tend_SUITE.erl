@@ -5,7 +5,7 @@
 
 all() ->
     [server_works, loading_lib_dirs, loader_test, guess_root,
-     compile_module].
+     compile_module, load_module].
 
 %%% INITS
 init_per_suite(Config) ->
@@ -52,6 +52,22 @@ init_per_testcase(loader_test, Config) ->
     [{lib_dir, OriginalLibDir},
      {sup, Pid}
      | Config];
+init_per_testcase(load_module, Config) ->
+    %% Make a lib_dir custom in priv/ to test if we boot while
+    %% correctly loading libs.
+    application:start(crypto),
+    application:start(public_key),
+    application:start(ssl),
+    application:start(inets),
+    Priv = ?config(priv_dir, Config),
+    LibDir = filename:join(Priv, "load-module_testdir/"),
+    filelib:ensure_dir(LibDir++"/.ignore"),
+    OriginalLibDir = application:get_env(tend, lib_dir),
+    application:set_env(tend, lib_dir, LibDir),
+    {ok, Pid} = tend_sup:start_link(),
+    [{lib_dir, OriginalLibDir},
+     {sup, Pid}
+     | Config];
 init_per_testcase(_, Config) ->
     Config.
 
@@ -60,6 +76,13 @@ end_per_testcase(loading_lib_dirs, Config) ->
 end_per_testcase(loader_test, Config) ->
     application:set_env(tend, lib_dir, ?config(lib_dir, Config)),
     Sup = ?config(sup, Config),
+    unlink(Sup),
+    exit(Sup, kill);
+end_per_testcase(load_module, Config) ->
+    application:set_env(tend, lib_dir, ?config(lib_dir, Config)),
+    Sup = ?config(sup, Config),
+    code:delete(tend_gist_load),
+    code:purge(tend_gist_load),
     unlink(Sup),
     exit(Sup, kill);
 end_per_testcase(_, Config) ->
@@ -235,3 +258,10 @@ compile_module(Config) ->
     tend_compile_module:compile(Path, Priv),
     code:add_patha(Priv),
     Unique = compile_mod_test_mod:main().
+
+%% milestone! Can load modules remotely + SSL
+load_module(_Config) ->
+    {'EXIT',{undef,_}} = (catch tend_gist_load:run()),
+    ct:pal("~p",[tend:load("https://raw.github.com/gist/3068457/8b99cc3f4b7cac3fcd19c4b0a0b4f0bfde7660e8/tend_gist_load.erl")]),
+    ok = tend:load("https://raw.github.com/gist/3068457/8b99cc3f4b7cac3fcd19c4b0a0b4f0bfde7660e8/tend_gist_load.erl"),
+    ':)' = tend_gist_load:run().

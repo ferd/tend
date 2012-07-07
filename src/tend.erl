@@ -19,8 +19,8 @@ stop(_) -> ok.
 %%% API
 %% this function is added for an easy CLI start (erl -s tend)
 start() ->
-    application:start(public_key),
     application:start(crypto),
+    application:start(public_key),
     application:start(ssl),
     application:start(inets),
     application:start(tend).
