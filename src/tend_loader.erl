@@ -57,4 +57,7 @@ load_ls([ _Tag | Rest], Outdir) ->
 
 
 remove_encoding({"content-type", Ct}) ->
+    %% Right now we aren't concerning outselves with
+    %% encoding since we are just passing the data
+    %% through to the system
     {"content-type", erlang:hd(string:tokens(Ct, ";"))}.
