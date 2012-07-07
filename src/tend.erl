@@ -65,7 +65,7 @@ clean_up() ->
 %% -----------------------------------------------------------------------------
 compile_modules(Modules) ->
     Ebin = application:get_env(tend, ebin),
-    [ok = tend_compile_module:compile(M, Ebin) || M <- Modules],
+    [{ok, _M} = tend_compile_module:compile(M, Ebin) || M <- Modules],
     ok.
 
 compile_apps(Apps) ->
