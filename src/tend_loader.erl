@@ -62,8 +62,8 @@ dispatch(_Url, Ct, Body, _Srcdir, Libdir)
   when Ct =:= "application/zip" orelse Ct =:= "application/octet-stream" ->
     {ok, Files} = zip:unzip(list_to_binary(Body), [{cwd, Libdir}]),
     [{app, guess_root(Files)}];
-dispatch(_Url, _Content_type, _Body, _Srcdir, _Libdir) ->
-    {error, unsupported_content_type}.
+dispatch(Url, _Content_type, _Body, _Srcdir, _Libdir) ->
+    [{unsupported_content_type, Url}].
 
 
 

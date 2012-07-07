@@ -25,8 +25,25 @@ start() ->
     application:start(inets),
     application:start(tend).
 
-load(_Path) ->
-    ok = not_implemented.
+%% -----------------------------------------------------------------------------
+%% API
+%% -----------------------------------------------------------------------------
+load(Url) ->
+    Downloaded = tend_loader:load_url(Url),
+    Unsupported = [Url || {Ret, Url} <- Downlaoded,
+                          Ret =/= module andalso
+                          Ret =/= app
+                  ],
+    case Unsupported of
+        [] ->
+            Modules = [Module || {module, File} <- Downloaded],
+            Apps    = [App    || {app,    App } <- Downlaoded],
+            ok      = compile_modules(Modules),
+            ok      = compile_apps(Apps),
+            ok;
+        [_|_] ->
+            {error, Unsupported}
+    end.
 
 resume() ->
     ok = not_implemented.
@@ -42,3 +59,15 @@ reload() ->
 
 clean_up() ->
     ok = not_implemented.
+
+%% -----------------------------------------------------------------------------
+%% Internal API
+%% -----------------------------------------------------------------------------
+compile_modules(Modules) ->
+    Ebin = application:get_env(tend, ebin),
+    [ok = tend_compile_module:compile(M, Ebin) || M <- Modules],
+    ok.
+
+compile_apps(Apps) ->
+    [ok = tend_compile_app:compile(A) || A <- Apps],
+    ok.
