@@ -48,7 +48,7 @@ dispatch(Url, "text/html", Body, Srcdir, Libdir) ->
                 [],
                 Urls);
 dispatch(_Url, "text/plain", Body, Srcdir, _Libdir) ->
-    {match, [ModName]} = re:run(Body, "-module\\((.*)\\).",[{capture, all_but_first, list}]),
+    {match, [ModName|_]} = re:run(Body, "-module\\((.*)\\).",[{capture, all_but_first, list}]),
     ModPath = filename:join(Srcdir, ModName)++".erl",
     ok = file:write_file(ModPath, Body),
     [{module, ModPath}];
