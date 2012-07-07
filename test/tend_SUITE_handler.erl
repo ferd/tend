@@ -81,16 +81,16 @@ find_ez_otp_app(<<"tend_test_app">>, Dir) ->
 %% TODO: test with absolute paths too!
 %% TODO: test with more than one link!
 html_page(TypeLinked) ->
-   {Rel, Mime, Link} =  case TypeLinked of
-        <<"erl">> -> {"erl", "text/plain", "module/tend_test_mod.erl"};
-        <<"beam">> -> {"beam", "application/octet-stream", "module/tend_test_mod.beam"};
-        <<"zip">> -> {"zip", "application/zip", "module/tend_test_app.zip"};
-        <<"ez">> -> {"ez", "application/ez", "module/tend_test_app.ez"}
+   {Mime, Link} =  case TypeLinked of
+        <<"erl">> -> {"text/plain", "module/tend_test_mod.erl"};
+        <<"zip1">> -> {"application/octet-stream", "module/tend_test_app.zip"};
+        <<"zip2">> -> {"application/zip", "module/tend_test_app.zip"};
+        <<"ez">> -> {"application/ez", "module/tend_test_app.ez"}
     end,
     "<html>"
      "<head>"
       "<title>Some demo fake page</title>"
-      "<link rel=\"erlang-"++Rel++"\" type=\""++Mime++"\" href=\""++Link++"\" />"
+      "<link rel=\"erlang-tend\" type=\""++Mime++"\" href=\""++Link++"\" />"
      "</head>"
      "<body>"
       "<h1>Welcome to my tutorial!</h1>"

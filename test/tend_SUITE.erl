@@ -95,9 +95,9 @@ server_works(Config) ->
     {ok, {{_, 200, _}, _,
       "<html>" ++ _}} = httpc:request(BaseURI++"html/erl"),
     {ok, {{_, 200, _}, _,
-      "<html>" ++ _}} = httpc:request(BaseURI++"html/beam"),
+      "<html>" ++ _}} = httpc:request(BaseURI++"html/zip2"),
     {ok, {{_, 200, _}, _,
-      "<html>" ++ _}} = httpc:request(BaseURI++"html/zip"),
+      "<html>" ++ _}} = httpc:request(BaseURI++"html/zip1"),
     {ok, {{_, 200, _}, _,
       "<html>" ++ _}} = httpc:request(BaseURI++"html/ez").
 
