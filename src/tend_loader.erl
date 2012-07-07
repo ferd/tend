@@ -37,7 +37,7 @@ guess_root(Dirs) ->
                         end,
                         dict:new(),
                         SrcDirs ++ EbinDirs ++ InclDirs),
-    {Path, _Count} = hd(lists:keysort(2, dict:to_list(Dict))),
+    {Path, _Count} = hd(lists:reverse(lists:keysort(2, dict:to_list(Dict)))),
     Path.
 
 
