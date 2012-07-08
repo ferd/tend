@@ -37,6 +37,10 @@ start() ->
 %%      environment variable and are compiled to the ebin applicatin environment
 %%      variable.  If the URL does not contain a supported content-type, then
 %%      {error, [Url]} is returned.
+%%      And HTML file can reference files by placing them in LINK or A sections
+%%      with a REL of "erlang-tend".
+%%      For example: <a rel="erlang-tend" href="http://foo">
+%%      HTTP and HTTPS schemes are supported.
 -spec load(string()) -> ok | {error, [string()]}.
 load(Url) ->
     {ok, Srcdir} = application:get_env(tend, src),
