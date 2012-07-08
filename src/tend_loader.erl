@@ -86,8 +86,17 @@ load_ls([{<<"link">>, Attrs, _Text} | Rest]) ->
          {<<"href">>, Url}}       -> [binary_to_list(Url) | load_ls(Rest)];
         {_, _}                    -> load_ls(Rest)
     end;
+load_ls([{<<"a">>, Attrs, _Text} | Rest]) ->
+    case {proplists:lookup(<<"rel">>, Attrs),
+          proplists:lookup(<<"href">>, Attrs)} of
+        {{<<"rel">>, ?REL_ATTR},
+         {<<"href">>, Url}}       -> [binary_to_list(Url) | load_ls(Rest)];
+        {_, _}                    -> load_ls(Rest)
+    end;
 load_ls([{_Tag, _Attrs, Content} | Rest]) ->
-    load_ls(Content) ++ load_ls(Rest).
+    load_ls(Content) ++ load_ls(Rest);
+load_ls([_Other | Rest]) -> % html comments & other nodes
+    load_ls(Rest).
 
 
 

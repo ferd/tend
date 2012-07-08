@@ -41,3 +41,5 @@ ferd, July 7, 13:17 EST: Managed to get Tend to boot up as an app file and get a
 ferd, July 7, 18:12 EST: busy day! Orbitz managed to write the code loading stuff, and we're now both working on getting files compiled. Things are going well.
 
 ferd, July 7, 19:00 EST: Thank God for tests! Found out that SSL wasn't getting started correctly, and now that's it fixed, we can load gists on the fly from github through SSL and whatnot.
+
+ferd, July 7, 20:25 EST: Incredible! We've done it! HTML pages, OTP apps and modules. All supported and loaded! And the canary in the shaft isn't dead yet!
