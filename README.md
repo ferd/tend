@@ -49,3 +49,5 @@ ferd, July 7, 23:37 EST: Almost another day over. I've completed a code reloader
 ferd, July 8, 01:42 EST: Ugh, it's late. I've found and fixed a couple of mistakes related to rebar handling, and added tests for all types of builds. It sucks that OTP apps that expect rebar to be globally installed won't be compileable, but too bad for them I guess. The tests are now taking forever to run, thanks to downloading and building 3 apps with their deps.
 
 ferd, July 8, 09:29 EST: The Swedish fairy got me a surprise this morning; Orbitz has implemented a rebuild feature to complement the 'reload()' one. Here is some little modifications peppered over it. Oh and the Swedish fairy is *not* orbitz. Just re-read myself and realized how weird that sounded.
+
+ferd, July 8, 09:55 EST: Holy moly, stuff works even with NIFs! We're both pretty satisfied at this point and we're working on polish. Malcolm (orbitz) is taking care of comments and specs, and I'm looking for writing docs and some demo code.

@@ -317,4 +317,10 @@ zip_load(_Config) ->
     {'EXIT',{undef,_}} = (catch erlydtl:module_info()),
     tend:load("https://bitbucket.org/ferd/blogerl/get/5d823822dbe0.zip"),
     blog:module_info(),
-    erlydtl:module_info().
+    erlydtl:module_info(),
+    %% erlpass uses raw rebar and depends on bcrypt, which runs as a NIF
+    {'EXIT',{undef,_}} = (catch bcrypt:module_info()),
+    {'EXIT',{undef,_}} = (catch erlpass:module_info()),
+    tend:load("https://github.com/ferd/erlpass/zipball/0.1.2"),
+    application:start(bcrypt),
+    <<_/binary>> = erlpass:hash("it works!!").
