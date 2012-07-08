@@ -10,6 +10,7 @@ compile(SrcMod, Ebin) ->
                       [SrcMod, Errors, Warnings]),
             error;
         {ok, Mod, []} ->
+            io:format("Compiled ~s~n", [SrcMod]),
             {ok, Mod};
         {ok, Mod, Warnings} ->
             io:format("Warning compiling module ~p: ~p~n", [Mod, Warnings]),

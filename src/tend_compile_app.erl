@@ -49,7 +49,8 @@ is_emakefile(App) ->
 
 
 run_cmd(Cwd, Cmd) ->
-    Port = open_port({spawn, Cmd}, [{cd, Cwd}, exit_status]),
+    Port = erlang:open_port({spawn, Cmd},
+                            [{cd, Cwd}, {line, 1000000}, exit_status]),
     ok   = wait_for_exit(Port).
 
 wait_for_exit(Port) ->
@@ -58,6 +59,9 @@ wait_for_exit(Port) ->
             ok;
         {Port, {exit_status, _}} ->
             error;
+        {Port, {data, {eol, Msg}}} ->
+            io:format("~s~n", [Msg]),
+            wait_for_exit(Port);
         {Port, _} ->
             wait_for_exit(Port)
     end.
