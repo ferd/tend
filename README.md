@@ -39,9 +39,21 @@ This tells _TEND_ where to dump files and compile things. With this being done, 
 
     λ ~ → erl -config ~/tend -pa code/self/tend/ebin -env ERL_LIBS code/self/tend/deps -s tend
 
-This gives _TEND_ its config (`-config ~/tend`), shows where to find the code for it (`-pa code/self/tend/ebin -env ERL_LIBS code/self/tend/deps`), and tells it to start it and its dependencies right away (`-s tend`).
+This gives _TEND_ its config (`-config ~/tend`), shows where to find the code for it (`-pa code/self/tend/ebin -env ERL_LIBS code/self/tend/deps`), and tells it to start it and its dependencies right away (`-s tend`). If you find this line too long or annoying, call `make script` after building _TEND_:
 
-_The Erl Next Door_ should now be running in your shell. You can try to load some random modules from any website, say the RPN calculator from Learn You Some Erlang:
+    $ make script
+    You can also add:
+      alias erl="erl -pa /home/ferd/code/self/tend/ebin -env ERL_LIBS /home/ferd/code/self/tend/deps -config /home/ferd/code/self/tend/tend -s tend"
+    as an alias to 'erl' to always have The Erl Next Door ready.
+
+This will create a file called `tenderl.sh`, which can be used instead of `erl`. Alternatively, the Make file will recommend you an alias to use for your shell. Using such an alias will make _TEND_ transparent and always loaded with your system. Be aware that _TEND_ started that way will use its own `appsE` directory to store modules and applications. You could instead use it as follows, keeping the `.config` file from above:
+
+    λ ~ → alias erl="erl -pa /home/ferd/code/self/tend/ebin -env ERL_LIBS /home/ferd/code/self/tend/deps -config /home/ferd/code/self/tend/tend -s tend"
+    λ ~ → erl -config ~/tend
+    Erlang R15B01 (erts-5.9.1) [source] [64-bit] [smp:4:4] [async-threads:0] [hipe] [kernel-poll:false]
+    1>
+
+_The Erl Next Door_ should now be running in your shell, storing files in the directory you decided to use. You can try to load some random modules from any website, say the RPN calculator from Learn You Some Erlang:
 
     1> tend:load("http://learnyousomeerlang.com/static/erlang/calc.erl").
     ok

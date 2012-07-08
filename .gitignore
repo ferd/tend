@@ -10,3 +10,5 @@ logs/*
 deps/*
 ebin/*
 apps/*
+tend.config
+tenderl.sh
