@@ -67,8 +67,6 @@ wait_for_exit(Port) ->
             ok;
         {Port, {exit_status, _}} ->
             error;
-        {Port, {data, {eol, _}}} ->
-            wait_for_exit(Port);
         {Port, _} ->
             wait_for_exit(Port)
     end.
