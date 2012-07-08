@@ -5,6 +5,7 @@
         ]).
 
 compile(App) ->
+    io:format("Compiling app in ~s~n", [App]),
     case compile_type(App) of
         makefile ->
             [chmod_rebar(filename:join(App, "rebar"))
@@ -59,8 +60,7 @@ wait_for_exit(Port) ->
             ok;
         {Port, {exit_status, _}} ->
             error;
-        {Port, {data, {eol, Msg}}} ->
-            io:format("~s~n", [Msg]),
+        {Port, {data, {eol, _}}} ->
             wait_for_exit(Port);
         {Port, _} ->
             wait_for_exit(Port)
