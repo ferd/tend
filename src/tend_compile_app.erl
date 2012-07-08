@@ -1,6 +1,8 @@
 -module(tend_compile_app).
 
--export([compile/1]).
+-export([compile/1,
+         add_codepath/1
+        ]).
 
 compile(App) ->
     case compile_type(App) of
@@ -17,6 +19,9 @@ compile(App) ->
         unknown ->
             erlang:error({unknown_compile_type, App})
     end,
+    ok.
+
+add_codepath(App) ->
     lists:foreach(fun code:add_pathz/1, find_ebins(App)),
     ok.
 

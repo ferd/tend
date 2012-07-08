@@ -1,9 +1,8 @@
 -module(tend_loader).
 
--export([load_url/3]).
-
-%% Exporting purely for testing purposes
--export([guess_root/1]).
+-export([load_url/3,
+         guess_root/1
+        ]).
 
 -include_lib("ex_uri/include/ex_uri.hrl").
 
@@ -22,9 +21,6 @@ load_url(Url, Srcdir, Libdir) ->
                                                         Headers)),
     dispatch(Url, Content_type, Body, Srcdir, Libdir).
 
-%% -----------------------------------------------------------------------------
-%% Internal API, exported for testing
-%% -----------------------------------------------------------------------------
 guess_root(Dirs) ->
     %% We guess that based on the common Erlang repo, the root
     %% of the application is the level above 'src/' or 'ebin/'

@@ -6,7 +6,7 @@
          resume/0,
          set_dir/1,
          get_dir/0,
-         reload/0,
+         rebuild/0,
          clean_up/0
         ]).
 
@@ -56,8 +56,13 @@ set_dir(_Dir) ->
 get_dir() ->
     ok = not_implemented.
 
-reload() ->
-    tend_reloader:reload().
+rebuild() ->
+    {ok, Ebin  } = application:get_env(tend, ebin),
+    {ok, Srcdir} = application:get_env(tend, src),
+    {ok, Libdir} = application:get_env(tend, lib_dir),
+    tend_compile:compile(Ebin, Srcdir, Libdir),
+    tend_reloader:reload(),
+    ok.
 
 clean_up() ->
     ok = not_implemented.
@@ -71,5 +76,8 @@ compile_modules(Modules) ->
     ok.
 
 compile_apps(Apps) ->
-    [ok = tend_compile_app:compile(A) || A <- Apps],
+    [begin
+         ok = tend_compile_app:compile(A),
+         ok = tend_compile_app:add_codepath(A)
+     end || A <- Apps],
     ok.
