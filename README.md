@@ -87,7 +87,7 @@ How To Use it (as a library writer)
 As a library writer, you just keep on producing OTP applications as you were before. Just make sure that it has either:
 
 - an Emakefile, so that the application can be compiled with `erl -make`
-- a local copy of `rebar`, so that it can be compiled by the usual `rebar get-deps` and `rebar compile`
+- a local copy of `rebar`, so that it can be compiled by the usual `./rebar get-deps` and `./rebar compile`
 - a Makefile, so that the application can be compiled just by calling `make`.
 
 That's it. _TEND_ tries to be flexible on the paths it can see. For example, it handles [erlpass](https://github.com/ferd/erlpass/tree/ed9b5fa4dcbd81a3e580b0723cfb9eb4709bc817)'s dependency on bcrypt and its NIFs fine, and it can handle [blogerl](https://bitbucket.org/ferd/blogerl/src)'s more unusual directory structure fine.
