@@ -46,7 +46,7 @@ This gives _TEND_ its config (`-config ~/tend`), shows where to find the code fo
       alias erl="erl -pa /home/ferd/code/self/tend/ebin -env ERL_LIBS /home/ferd/code/self/tend/deps -config /home/ferd/code/self/tend/tend -s tend"
     as an alias to 'erl' to always have The Erl Next Door ready.
 
-This will create a file called `tenderl.sh`, which can be used instead of `erl`. Alternatively, the Make file will recommend you an alias to use for your shell. Using such an alias will make _TEND_ transparent and always loaded with your system. Be aware that _TEND_ started that way will use its own `apps/` directory to store modules and applications. To substitute your own, either use the `tend.config` file we have declared, or call:
+This will create a file called `tenderl.sh`, which can be used instead of `erl`. Alternatively, the Make file will recommend you an alias to use for your shell. Using such an alias will make _TEND_ transparent and always loaded with your system. Be aware that _TEND_ started that way will use its own `apps/` directory to store modules and applications. To substitute your own, either use the `tend.config` file we have declared, start the Erlang shell with `-tend lib_dir $PATH` for arguments, or call:
 
     $ make script LIB_DIR=/home/ferd/code/apps
 
