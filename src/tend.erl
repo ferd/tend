@@ -1,11 +1,12 @@
 -module(tend).
 -behaviour(application).
+
+%% Application exports
 -export([start/2, stop/1]).
+
+%% API exports
 -export([start/0,
          load/1,
-         resume/0,
-         set_dir/1,
-         get_dir/0,
          rebuild/0,
          clean_up/0
         ]).
@@ -28,14 +29,27 @@ start() ->
 %% -----------------------------------------------------------------------------
 %% API
 %% -----------------------------------------------------------------------------
+%% @doc Download, and compile, the URL and any dependencies.  This can be
+%%      called as many times as you want.  Applications are downloaded to the
+%%      lib_dir application environment variable and they are built.  An
+%%      application must have a Makefile, rebar, or Emakefile in order to be
+%%      built.  Single .erl files are downloaded to the src application
+%%      environment variable and are compiled to the ebin applicatin environment
+%%      variable.  If the URL does not contain a supported content-type, then
+%%      {error, [Url]} is returned.
+%%      And HTML file can reference files by placing them in LINK or A sections
+%%      with a REL of "erlang-tend".
+%%      For example: <a rel="erlang-tend" href="http://foo">
+%%      HTTP and HTTPS schemes are supported.
+-spec load(string()) -> ok | {error, [string()]}.
 load(Url) ->
     {ok, Srcdir} = application:get_env(tend, src),
     {ok, Libdir} = application:get_env(tend, lib_dir),
-    Downloaded = tend_loader:load_url(Url, Srcdir, Libdir),
-    Unsupported = [FailedUrl || {Ret, FailedUrl} <- Downloaded,
-                                Ret =/= module andalso
-                                Ret =/= app
-                  ],
+    Downloaded   = tend_loader:load_url(Url, Srcdir, Libdir),
+    Unsupported  = [FailedUrl || {Ret, FailedUrl} <- Downloaded,
+                                 Ret =/= module,
+                                 Ret =/= app
+                   ],
     case Unsupported of
         [] ->
             Modules = [Mod || {module, Mod} <- Downloaded],
@@ -47,15 +61,8 @@ load(Url) ->
             {error, Unsupported}
     end.
 
-resume() ->
-    ok = not_implemented.
-
-set_dir(_Dir) ->
-    ok = not_implemented.
-
-get_dir() ->
-    ok = not_implemented.
-
+%% @doc Rebuild all modified files
+-spec rebuild() -> ok.
 rebuild() ->
     {ok, Ebin  } = application:get_env(tend, ebin),
     {ok, Srcdir} = application:get_env(tend, src),
@@ -64,17 +71,20 @@ rebuild() ->
     tend_reloader:reload(),
     ok.
 
+-spec clean_up() -> ok.
 clean_up() ->
     ok = not_implemented.
 
 %% -----------------------------------------------------------------------------
 %% Internal API
 %% -----------------------------------------------------------------------------
+-spec compile_modules([file:name()]) -> ok.
 compile_modules(Modules) ->
     {ok, Ebin} = application:get_env(tend, ebin),
     [{ok, _M} = tend_compile_module:compile(M, Ebin) || M <- Modules],
     ok.
 
+-spec compile_apps([file:name()]) -> ok.
 compile_apps(Apps) ->
     [begin
          ok = tend_compile_app:compile(A),

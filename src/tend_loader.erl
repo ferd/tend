@@ -8,9 +8,20 @@
 
 -define(REL_ATTR, <<"erlang-tend">>).
 
+-type loaded() :: {module, file:name()}
+                | {app, file:name()}
+                | {unsupported_content_type, string()}.
+
 %% -----------------------------------------------------------------------------
 %% API
 %% -----------------------------------------------------------------------------
+%% @doc Load a URL and save any single erl files to Srcdir and any apps to
+%%      Libdir.  An app is defined as a zip file.  load_url is recursive
+%%      and will load all dependencies.  Only HTML files can define dependencies
+%%      which are specified through LINK or A tags where the REL is specified
+%%      as "erlang-tend".  For example <link rel="erlang-tend" href="fooo">.
+%%      Any scheme that httpc:request suports can be specified.
+-spec load_url(string(), file:name(), file:name()) -> [loaded()].
 load_url(Url, Srcdir, Libdir) ->
     {ok, Response} = httpc:request(Url),
     {{_Vsn, 200, "OK"},
@@ -21,6 +32,9 @@ load_url(Url, Srcdir, Libdir) ->
                                                         Headers)),
     dispatch(Url, Content_type, Body, Srcdir, Libdir).
 
+%% @doc Takes a the file list for a downloaded app and attempts to
+%%      determine the base for the app.
+-spec guess_root([file:name()]) -> file:name().
 guess_root(Dirs) ->
     %% We guess that based on the common Erlang repo, the root
     %% of the application is the level above 'src/' or 'ebin/'
@@ -71,18 +85,16 @@ dispatch(Url, _Content_type, _Body, _Srcdir, _Libdir) ->
 load_links(Body) ->
     [_|_] = load_ls([mochiweb_html:parse(Body)]).
 
+%% @private
+%% @doc Walk a parsed HTML document looking for matching
+%%      LINK and A portions.  The URLs are collected and
+%%      returned in a list
 load_ls([]) ->
     [];
 load_ls([Text]) when is_binary(Text) ->
     [];
-load_ls([{<<"link">>, Attrs, _Text} | Rest]) ->
-    case {proplists:lookup(<<"rel">>, Attrs),
-          proplists:lookup(<<"href">>, Attrs)} of
-        {{<<"rel">>, ?REL_ATTR},
-         {<<"href">>, Url}}       -> [binary_to_list(Url) | load_ls(Rest)];
-        {_, _}                    -> load_ls(Rest)
-    end;
-load_ls([{<<"a">>, Attrs, _Text} | Rest]) ->
+load_ls([{Link_type, Attrs, _Text} | Rest])
+  when Link_type =:= <<"link">> orelse Link_type =:= <<"a">> ->
     case {proplists:lookup(<<"rel">>, Attrs),
           proplists:lookup(<<"href">>, Attrs)} of
         {{<<"rel">>, ?REL_ATTR},
