@@ -63,7 +63,7 @@ _TEND_ will have created two directories inside `lib_dir`:  `src/` and `ebin/`. 
 
 Which works. Division has been removed.
 
-Better than this, _TEND_ can also handle OTP applications that have been packaged as a `.zip` file, iff they are possible to build with `make` (a `Makefile` is present), a local copy of `rebar` (`rebar` is in the directory), or using `Emakefiles` for Erlang code. For example, Cowboy 0.6.0 is compiled using a `Makefile`. If I just go on github and grab the `.zip` of its 0.6.0 tag (see https://github.com/extend/cowboy/tags):
+Better than this, _TEND_ can also handle OTP applications that have been packaged as a `.zip` file, iff they are possible to build with `make` (a `Makefile` is present), a local copy of `rebar` (`rebar` is in the directory), or using `Emakefiles` for Erlang code. For example, Cowboy 0.6.0 is compiled using a `Makefile`. If I just go on github and grab the `.zip` of its 0.6.0 tag (see [https://github.com/extend/cowboy/tags](https://github.com/extend/cowboy/tags)):
 
     5> tend:load("https://github.com/extend/cowboy/zipball/0.6.0").
     Compiling app in /home/ferd/code/apps/extend-cowboy-0c2e222
@@ -98,7 +98,7 @@ How To Use it (to write tutorials)
 
 We (Malcolm & Fred) wanted _The Erl Next Door_ to be easy as hell to use for tutorial writers and people who want to demonstrate their libraries and applications on their own website.
 
-Sadly, it gets a bit annoying having to call all these URIs in `tend:load/1`, so we decided to do a little nice thing. If you have a web site, you can declare _TEND_ dependencies in two ways:
+Sadly, it gets a bit annoying having to call all these URIs in `tend:load/1`, so we decided to do a little nice thing. If you have a web site, you can tenderize a page by declaring _TEND_ dependencies in two ways:
 
 - `link` tags of the form `<link rel="erlang-tend" content-type="..." href="http://example.org/my-zip-or-erl.zip" />` in the `<head>` of the page
 - `a` hyperlinks through the page, of the form `<a rel="erlang-tend" href="...">Some description</a>`.
@@ -114,8 +114,6 @@ In most cases, just linking to the file will be enough. If you can see it as the
 For example, we rigged Learn You Some Erlang's [ETS chapter](http://learnyousomeerlang.com/ets) with one such tag to go download an OTP application required for the tutorial:
 
     8> tend:load("http://learnyousomeerlang.com/ets").
-    {"http://learnyousomeerlang.com/ets",
-     "http://learnyousomeerlang.com/static/erlang/regis-1.1.0.zip"}
     Compiling app in /home/ferd/code/apps/regis-1.1.0
     ok
     9> application:start(regis).
