@@ -36,6 +36,7 @@ Somewhere on your system, create a config file to use with it:
     [{tend, [{lib_dir, "/home/ferd/code/apps"}]}]. 
 
 This tells _TEND_ where to dump files and compile things. With this being done, we can just start it, as long as it's visible to Erlang.
+
     λ ~ → erl -config ~/tend -pa code/self/tend/ebin -env ERL_LIBS code/self/tend/deps -s tend
 
 This gives _TEND_ its config (`-config ~/tend`), shows where to find the code for it (`-pa code/self/tend/ebin -env ERL_LIBS code/self/tend/deps`), and tells it to start it and its dependencies right away (`-s tend`).
@@ -129,6 +130,11 @@ Further Development
 -------------------
 
 It would be fun to develop a repository of OTP apps (a bit like PLaneT, gems, or whatever these Perl guys are always proud about) based on _TEND_'s capacities of parsing web pages and downloading the required dependencies.
+
+Anything I Should Worry About?
+------------------------------
+
+We haven't tested _The Erl Next Door_ on Windows, only on Linux and BSD derivatives (OSX).
 
 Spawnfest Acitivity Log
 -----------------------
