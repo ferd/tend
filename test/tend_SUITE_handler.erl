@@ -29,6 +29,14 @@ routing(Req@, 'GET', [<<"html">>, TypeLinked], State) ->
         Req@
     ),
     {ok, Req@, State};
+routing(Req@, 'GET', [<<"ahtml">>, TypeLinked], State) ->
+    {ok, Req@} = cowboy_http_req:reply(
+        200,
+        [{<<"Content-Type">>, <<"text/html">>}],
+        html_page(TypeLinked),
+        Req@
+    ),
+    {ok, Req@, State};
 routing(Req@, 'GET', [<<"module">>, ModName], State = #state{dir=Dir}) ->
     Mod = filename:rootname(filename:basename(ModName)),
     {Payload, ContentType} = case filename:extension(ModName) of
@@ -95,5 +103,23 @@ html_page(TypeLinked) ->
      "<body>"
       "<h1>Welcome to my tutorial!</h1>"
       "<p>Hello, Friends!</p>"
+     "</body>"
+    "</html>".
+
+ahtml_page(TypeLinked) ->
+    Link =  case TypeLinked of
+        <<"erl">> -> "module/tend_test_mod.erl";
+        <<"zip1">> -> "module/tend_test_app.zip";
+        <<"zip2">> -> "module/tend_test_app.zip";
+        <<"ez">> -> "module/tend_test_app.ez"
+    end,
+    "<html>"
+     "<head>"
+      "<title>Some demo fake page</title>"
+     "</head>"
+     "<body>"
+      "<h1>Welcome to my tutorial!</h1>"
+      "<p>Hello, Friends!</p>"
+      "<a rel=\"erlang-tend\" href=\"/"++Link++"\" />"
      "</body>"
     "</html>".

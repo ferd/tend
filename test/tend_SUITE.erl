@@ -5,7 +5,7 @@
 
 all() ->
     [server_works, loading_lib_dirs, loader_test, guess_root,
-     compile_module, load_module].
+     compile_module, load_module, zip_load].
 
 %%% INITS
 init_per_suite(Config) ->
@@ -68,6 +68,22 @@ init_per_testcase(load_module, Config) ->
     [{lib_dir, OriginalLibDir},
      {sup, Pid}
      | Config];
+init_per_testcase(zip_load, Config) ->
+    %% Make a lib_dir custom in priv/ to test if we boot while
+    %% correctly loading libs.
+    application:start(crypto),
+    application:start(public_key),
+    application:start(ssl),
+    application:start(inets),
+    Priv = ?config(priv_dir, Config),
+    LibDir = filename:join(Priv, "zip-load_testdir/"),
+    filelib:ensure_dir(LibDir++"/.ignore"),
+    OriginalLibDir = application:get_env(tend, lib_dir),
+    application:set_env(tend, lib_dir, LibDir),
+    {ok, Pid} = tend_sup:start_link(),
+    [{lib_dir, OriginalLibDir},
+     {sup, Pid}
+     | Config];
 init_per_testcase(_, Config) ->
     Config.
 
@@ -83,6 +99,11 @@ end_per_testcase(load_module, Config) ->
     Sup = ?config(sup, Config),
     code:delete(tend_gist_load),
     code:purge(tend_gist_load),
+    unlink(Sup),
+    exit(Sup, kill);
+end_per_testcase(zip_load, Config) ->
+    application:set_env(tend, lib_dir, ?config(lib_dir, Config)),
+    Sup = ?config(sup, Config),
     unlink(Sup),
     exit(Sup, kill);
 end_per_testcase(_, Config) ->
@@ -141,7 +162,16 @@ server_works(Config) ->
     {ok, {{_, 200, _}, _,
       "<html>" ++ _}} = httpc:request(BaseURI++"html/zip1"),
     {ok, {{_, 200, _}, _,
-      "<html>" ++ _}} = httpc:request(BaseURI++"html/ez").
+      "<html>" ++ _}} = httpc:request(BaseURI++"html/ez"),
+    %% html page with hyperlinks (<a>)
+    {ok, {{_, 200, _}, _,
+      "<html>" ++ _}} = httpc:request(BaseURI++"ahtml/erl"),
+    {ok, {{_, 200, _}, _,
+      "<html>" ++ _}} = httpc:request(BaseURI++"ahtml/zip2"),
+    {ok, {{_, 200, _}, _,
+      "<html>" ++ _}} = httpc:request(BaseURI++"ahtml/zip1"),
+    {ok, {{_, 200, _}, _,
+      "<html>" ++ _}} = httpc:request(BaseURI++"ahtml/ez").
 
 loading_lib_dirs(Config) ->
     %% fetching vars
@@ -176,6 +206,10 @@ loader_test(Config) ->
     ct:pal("the vars are: ~p", [{LibDir, Src}]),
     ModName = filename:join(Src, "tend_test_mod.erl"),
     [{module, ModName}] = tend_loader:load_url(BaseURI ++ "html/erl",
+                                               Src,
+                                               LibDir),
+    ok = file:delete(ModName),
+    [{module, ModName}] = tend_loader:load_url(BaseURI ++ "ahtml/erl",
                                                Src,
                                                LibDir),
     AppPath = filename:join(LibDir, "tend_test_app"),
@@ -262,6 +296,25 @@ compile_module(Config) ->
 %% milestone! Can load modules remotely + SSL
 load_module(_Config) ->
     {'EXIT',{undef,_}} = (catch tend_gist_load:run()),
-    ct:pal("~p",[tend:load("https://raw.github.com/gist/3068457/8b99cc3f4b7cac3fcd19c4b0a0b4f0bfde7660e8/tend_gist_load.erl")]),
     ok = tend:load("https://raw.github.com/gist/3068457/8b99cc3f4b7cac3fcd19c4b0a0b4f0bfde7660e8/tend_gist_load.erl"),
     ':)' = tend_gist_load:run().
+
+zip_load(_Config) ->
+    %% Must load 3 applications, all with different compile methods.
+    %% regis from LYSE uses Emakefiles
+    {'EXIT',{undef,_}} = (catch regis:module_info()),
+    tend:load("http://learnyousomeerlang.com/static/erlang/regis-1.1.0.zip"),
+    regis:module_info(), % no crash for undef
+    %% dispcount uses a makefile and has rebar deps for proper
+    {'EXIT',{undef,_}} = (catch dispcount:module_info()),
+    {'EXIT',{undef,_}} = (catch proper:module_info()),
+    tend:load("https://github.com/ferd/dispcount/zipball/v0.1.0"),
+    dispcount:module_info(),
+    proper:module_info(),
+    %% blogerl uses only a local rebar copy, but also has an unusual
+    %% directory structure. Erlydtl is a dependency of blogerl.
+    {'EXIT',{undef,_}} = (catch blog:module_info()),
+    {'EXIT',{undef,_}} = (catch erlydtl:module_info()),
+    tend:load("https://bitbucket.org/ferd/blogerl/get/5d823822dbe0.zip"),
+    blog:module_info(),
+    erlydtl:module_info().

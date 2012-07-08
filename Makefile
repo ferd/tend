@@ -14,7 +14,7 @@ test:
 	@$(REBAR) compile ct skip_deps=true 
 
 clean:
-	@rm -rf deps/ ebin/ logs/
+	@rm -rf deps/ ebin/ logs/ apps/*
 
 dialyzer:
 	@$(REBAR) dialyze

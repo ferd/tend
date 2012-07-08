@@ -45,3 +45,5 @@ ferd, July 7, 19:00 EST: Thank God for tests! Found out that SSL wasn't getting 
 ferd, July 7, 20:25 EST: Incredible! We've done it! HTML pages, OTP apps and modules. All supported and loaded! And the canary in the shaft isn't dead yet!
 
 ferd, July 7, 23:37 EST: Almost another day over. I've completed a code reloader, and after trying for very long to make it reload files, I remembered that I needed to make non-superficial changes for the version to be upgrade (adding comments and shit isn't enough). I've lost something like 30-40 minutes on that and I feel dumb. I blame being tired, but ultimately, it's probably all the fault of the OTP team for not preemptively reading my mind.
+
+ferd, July 8, 01:42 EST: Ugh, it's late. I've found and fixed a couple of mistakes related to rebar handling, and added tests for all types of builds. It sucks that OTP apps that expect rebar to be globally installed won't be compileable, but too bad for them I guess. The tests are now taking forever to run, thanks to downloading and building 3 apps with their deps.

@@ -10,8 +10,8 @@ compile(App) ->
             run_cmd(App, "make");
         rebar ->
             chmod_rebar(filename:join(App, "rebar")),
-            run_cmd(App, "rebar get-deps"),
-            run_cmd(App, "rebar compile");
+            run_cmd(App, "./rebar get-deps"),
+            run_cmd(App, "./rebar compile");
         emakefile ->
             run_cmd(App, "erl -make");
         unknown ->
