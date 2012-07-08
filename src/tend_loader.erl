@@ -129,8 +129,13 @@ most_instances(L) ->
                         L),
     lists:reverse(lists:keysort(2, dict:to_list(Dict))).
 
+
+%% @private
+%% @doc There doesn't seem to be any easy way to join two URLs.
+%%      This function takes a Base URL and a URL that may be
+%%      a relative path, and absolute path, or a full URL
+%%      with a scheme.
 join_url(Base, Url) ->
-    io:format("~p~n", [{Base, Url}]),
     case Url of
         "https://" ++ _ -> Url;
         "http://"  ++ _ -> Url;
