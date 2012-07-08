@@ -7,8 +7,7 @@
 %% API exports
 -export([start/0,
          load/1,
-         rebuild/0,
-         clean_up/0
+         rebuild/0
         ]).
 
 %%% Application Behaviour Callback
@@ -70,10 +69,6 @@ rebuild() ->
     tend_compile:compile(Ebin, Srcdir, Libdir),
     tend_reloader:reload(),
     ok.
-
--spec clean_up() -> ok.
-clean_up() ->
-    ok = not_implemented.
 
 %% -----------------------------------------------------------------------------
 %% Internal API

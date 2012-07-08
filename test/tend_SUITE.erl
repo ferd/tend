@@ -214,7 +214,15 @@ loader_test(Config) ->
                                                LibDir),
     AppPath = filename:join(LibDir, "tend_test_app"),
     [{app, AppPath}] = tend_loader:load_url(BaseURI ++ "module/tend_test_app.zip",
-                                           Src, LibDir).
+                                            Src,
+                                            LibDir),
+    ok = file:delete(ModName),
+    os:cmd("rm -rf " ++ AppPath),
+    Multi = tend_loader:load_url(BaseURI ++ "multihtml",
+                                 Src,
+                                 LibDir),
+    {module, ModName} = proplists:lookup(module, Multi),
+    {app,    AppPath} = proplists:lookup(app,    Multi).
 
 guess_root(_Config) ->
     Batch1 = ["ferd-zippers-d646699/.gitignore",

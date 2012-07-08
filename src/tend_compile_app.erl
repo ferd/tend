@@ -26,8 +26,7 @@ compile(App) ->
             run_cmd(App, "erl -make");
         unknown ->
             {error, {unknown_compile_type, App}}
-    end,
-    ok.
+    end.
 
 add_codepath(App) ->
     lists:foreach(fun code:add_pathz/1, find_ebins(App)),

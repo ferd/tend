@@ -37,11 +37,19 @@ routing(Req@, 'GET', [<<"ahtml">>, TypeLinked], State) ->
         Req@
     ),
     {ok, Req@, State};
+routing(Req@, 'GET', [<<"multihtml">>], State) ->
+    {ok, Req@} = cowboy_http_req:reply(
+        200,
+        [{<<"Content-Type">>, <<"text/html">>}],
+        multihtml_page(),
+        Req@
+    ),
+    {ok, Req@, State};
 routing(Req@, 'GET', [<<"module">>, ModName], State = #state{dir=Dir}) ->
     Mod = filename:rootname(filename:basename(ModName)),
     {Payload, ContentType} = case filename:extension(ModName) of
         <<".beam">> ->
-            {find_compiled_module(Mod, Dir), <<"application/octet-stream">>}; 
+            {find_compiled_module(Mod, Dir), <<"application/octet-stream">>};
         <<".erl">> ->
             {find_source_module(Mod, Dir), <<"text/plain">>};
         <<".zip">> ->
@@ -121,5 +129,18 @@ ahtml_page(TypeLinked) ->
       "<h1>Welcome to my tutorial!</h1>"
       "<p>Hello, Friends!</p>"
       "<a rel=\"erlang-tend\" href=\"/"++Link++"\" />"
+     "</body>"
+    "</html>".
+
+multihtml_page() ->
+    "<html>"
+     "<head>"
+      "<title>Some demo fake page</title>"
+     "</head>"
+     "<body>"
+      "<h1>Welcome to my tutorial!</h1>"
+      "<p>Hello, Friends!</p>"
+      "<a rel=\"erlang-tend\" href=\"/module/tend_test_mod.erl\" />"
+      "<a rel=\"erlang-tend\" href=\"/module/tend_test_app.zip\" />"
      "</body>"
     "</html>".
