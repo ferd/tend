@@ -1,6 +1,9 @@
 -module(tend_compile_module).
 -export([compile/2]).
 
+%% @doc Compiles a source module to an Ebin.  Errors and Warnings are
+%%      printed out.
+-spec compile(file:name(), file:name()) -> {ok, module()} | error.
 compile(SrcMod, Ebin) ->
     case compile:file(SrcMod, [debug_info, return, {outdir, Ebin}]) of
         {error, Errors, Warnings} ->

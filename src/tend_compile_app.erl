@@ -4,6 +4,13 @@
          add_codepath/1
         ]).
 
+%% @doc Takes a path to an app, it tries to determine which build
+%%      type the app uses and calls it.  The supported build
+%%      types in the order they are checked:
+%%      Makefile
+%%      rebar
+%%      Emakefile
+-spec compile(file:name()) -> ok | {error, {unknown_compile_type, file:name()}}.
 compile(App) ->
     io:format("Compiling app in ~s~n", [App]),
     case compile_type(App) of
@@ -18,7 +25,7 @@ compile(App) ->
         emakefile ->
             run_cmd(App, "erl -make");
         unknown ->
-            erlang:error({unknown_compile_type, App})
+            {error, {unknown_compile_type, App}}
     end,
     ok.
 
