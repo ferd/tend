@@ -28,6 +28,6 @@ script:
 	@sed 's|LIB_DIR|$(CWD)/apps|' etc/tend.config > tend.config
 	@sed 's|BASE_DIR|$(CWD)|' etc/tend.sh > tenderl.sh
 	@chmod +x tenderl.sh
-	@echo "You can also add:"
+	@echo "Script tenderl.sh created. You can also add:"
 	@echo "  alias erl=\"erl -pa $(EBIN) -env ERL_LIBS $(DEPS) -config $(CONF) -s tend\""
 	@echo "as an alias to 'erl' to always have The Erl Next Door ready."

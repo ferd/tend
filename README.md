@@ -42,7 +42,7 @@ This tells _TEND_ where to dump files and compile things. With this being done, 
 This gives _TEND_ its config (`-config ~/tend`), shows where to find the code for it (`-pa code/self/tend/ebin -env ERL_LIBS code/self/tend/deps`), and tells it to start it and its dependencies right away (`-s tend`). If you find this line too long or annoying, call `make script` after building _TEND_:
 
     $ make script
-    You can also add:
+    Script tenderl.sh created. You can also add:
       alias erl="erl -pa /home/ferd/code/self/tend/ebin -env ERL_LIBS /home/ferd/code/self/tend/deps -config /home/ferd/code/self/tend/tend -s tend"
     as an alias to 'erl' to always have The Erl Next Door ready.
 
