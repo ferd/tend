@@ -140,6 +140,8 @@ Further Development
 
 It would be fun to develop a repository of OTP apps (a bit like PLaneT, gems, or whatever these Perl guys are always proud about) based on _TEND_'s capacities of parsing web pages and downloading the required dependencies.
 
+We've put together [a small demonstration website](http://ferd.ca/tend/), just to show the principle.
+
 Anything I Should Worry About?
 ------------------------------
 
@@ -175,3 +177,7 @@ ferd, July 8, 09:29 EST: The Swedish fairy got me a surprise this morning; Orbit
 ferd, July 8, 09:55 EST: Holy moly, stuff works even with NIFs! We're both pretty satisfied at this point and we're working on polish. Malcolm (orbitz) is taking care of comments and specs, and I'm looking for writing docs and some demo code.
 
 ferd, July 8, 11:01 EST: Clean up and polishing going well!
+
+ferd, July 8, 15:23 EST: I guess we're pretty much done. We're now working on demonstrations of what _TEND_ can do, and otherwise, orbitz might be chasing a bug regarding circular references in a page; something without dire consequences, if not minor annoyances.
+
+I will be logging off. Thanks for reading the development log. Now I'm gonna go try to rest and pretend I had a full week-end without programming, before going back to work and doing some more on Monday.
