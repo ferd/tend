@@ -1,6 +1,5 @@
-%%% tend_sup is an empty supervisor with the only role 
-%%% of setting up some sate for tend. It actually supervises
-%%% nothing.
+%%% tend_sup sets up all config values for
+%%% the application and supervises the reloader
 -module(tend_sup).
 -behaviour(supervisor).
 -export([start_link/0]).
@@ -11,7 +10,14 @@ start_link() ->
 
 init(_) ->
     setup_conf(),
-    {ok, {{one_for_one, 1, 1}, []}}.
+    {ok, LibDir} = application:get_env(tend, lib_dir),
+    {ok, {{one_for_one, 1, 1},
+          [{tend_reloader,
+            {tend_reloader, start_link, [LibDir]},
+            permanent,
+            5000,
+            worker,
+            [tend_reloader]}]}}.
 
 setup_conf() ->
     case application:get_env(tend, lib_dir) of

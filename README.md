@@ -43,3 +43,5 @@ ferd, July 7, 18:12 EST: busy day! Orbitz managed to write the code loading stuf
 ferd, July 7, 19:00 EST: Thank God for tests! Found out that SSL wasn't getting started correctly, and now that's it fixed, we can load gists on the fly from github through SSL and whatnot.
 
 ferd, July 7, 20:25 EST: Incredible! We've done it! HTML pages, OTP apps and modules. All supported and loaded! And the canary in the shaft isn't dead yet!
+
+ferd, July 7, 23:37 EST: Almost another day over. I've completed a code reloader, and after trying for very long to make it reload files, I remembered that I needed to make non-superficial changes for the version to be upgrade (adding comments and shit isn't enough). I've lost something like 30-40 minutes on that and I feel dumb. I blame being tired, but ultimately, it's probably all the fault of the OTP team for not preemptively reading my mind.

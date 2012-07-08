@@ -57,7 +57,7 @@ get_dir() ->
     ok = not_implemented.
 
 reload() ->
-    ok = not_implemented.
+    tend_reloader:reload().
 
 clean_up() ->
     ok = not_implemented.
