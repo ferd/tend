@@ -13,7 +13,7 @@ compile(App) ->
             run_cmd(App, "rebar get-deps"),
             run_cmd(App, "rebar compile");
         emakefile ->
-            ok = not_implemented;
+            run_cmd(App, "erl -make");
         unknown ->
             erlang:error({unknown_compile_type, App})
     end,
