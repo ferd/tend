@@ -46,12 +46,11 @@ This gives _TEND_ its config (`-config ~/tend`), shows where to find the code fo
       alias erl="erl -pa /home/ferd/code/self/tend/ebin -env ERL_LIBS /home/ferd/code/self/tend/deps -config /home/ferd/code/self/tend/tend -s tend"
     as an alias to 'erl' to always have The Erl Next Door ready.
 
-This will create a file called `tenderl.sh`, which can be used instead of `erl`. Alternatively, the Make file will recommend you an alias to use for your shell. Using such an alias will make _TEND_ transparent and always loaded with your system. Be aware that _TEND_ started that way will use its own `appsE` directory to store modules and applications. You could instead use it as follows, keeping the `.config` file from above:
+This will create a file called `tenderl.sh`, which can be used instead of `erl`. Alternatively, the Make file will recommend you an alias to use for your shell. Using such an alias will make _TEND_ transparent and always loaded with your system. Be aware that _TEND_ started that way will use its own `apps/` directory to store modules and applications. To substitute your own, either use the `tend.config` file we have declared, or call:
 
-    λ ~ → alias erl="erl -pa /home/ferd/code/self/tend/ebin -env ERL_LIBS /home/ferd/code/self/tend/deps -config /home/ferd/code/self/tend/tend -s tend"
-    λ ~ → erl -config ~/tend
-    Erlang R15B01 (erts-5.9.1) [source] [64-bit] [smp:4:4] [async-threads:0] [hipe] [kernel-poll:false]
-    1>
+    $ make script LIB_DIR=/home/ferd/code/apps
+
+If that's where you want to put it.
 
 _The Erl Next Door_ should now be running in your shell, storing files in the directory you decided to use. You can try to load some random modules from any website, say the RPN calculator from Learn You Some Erlang:
 

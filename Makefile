@@ -5,6 +5,7 @@ CWD:=$(shell pwd)
 EBIN:=$(CWD)/ebin
 DEPS:=$(CWD)/deps
 CONF:=$(CWD)/tend
+LIB_DIR:=$(CWD)/apps
 .PHONY: all test clean
 
 REBAR=./rebar
@@ -25,7 +26,7 @@ dialyzer:
 	@$(REBAR) dialyze
 
 script:
-	@sed 's|LIB_DIR|$(CWD)/apps|' etc/tend.config > tend.config
+	@sed 's|LIB_DIR|$(LIB_DIR)|' etc/tend.config > tend.config
 	@sed 's|BASE_DIR|$(CWD)|' etc/tend.sh > tenderl.sh
 	@chmod +x tenderl.sh
 	@echo "Script tenderl.sh created. You can also add:"
