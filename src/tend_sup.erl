@@ -33,13 +33,6 @@ setup_conf() ->
             code:add_pathz(Ebin),
             application:set_env(tend, src, Src),
             application:set_env(tend, ebin, Ebin)
-    end,
-    case application:get_env(tend, base) of
-        undefined ->
-            error_logger:warning_msg("Application 'tend' cannot find 'base' variable. "
-                                     "Only absolute URLs will be supported.");
-        _ ->
-            ok
     end.
 
 add_lib_dir_paths(LibDir) ->

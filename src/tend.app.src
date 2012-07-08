@@ -3,6 +3,5 @@
   {vsn, "0.0.1"},
   {applications, [kernel, stdlib, ssl, inets]},
   {mod, {tend, []}},
-  {env, [{base, undefined}, % base URL to use for relative URIs
-         {lib_dir, "./apps/"}]} % where to save public apps by default
+  {env, [{lib_dir, "./apps/"}]} % where to save public apps by default
  ]}.
