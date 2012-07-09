@@ -26,8 +26,8 @@ To get started from scratch real fast:
         alias erl="erl -pa..."
     as an alias to 'erl' to always have The Erl Next Door ready.
 
-How To Use it (as a developer)
-------------------------------
+How To Build (in details)
+-------------------------
 
 Managing dependencies is hard. Particularly in Erlang. It's especially annoying when all you want to do is try out stuff, or work from a tutorial online that has all kinds of dependencies you have no idea where to fetch.
 
@@ -59,6 +59,9 @@ This will create a file called `tenderl.sh`, which can be used instead of `erl`.
     $ make script LIB_DIR=/home/ferd/code/apps
 
 If that's where you want to put it.
+
+How To Use it (as a developer)
+------------------------------
 
 _The Erl Next Door_ should now be running in your shell, storing files in the directory you decided to use. You can try to load some random modules from any website, say the RPN calculator from Learn You Some Erlang:
 
