@@ -25,7 +25,7 @@ setup_conf() ->
             error_logger:error_msg("'lib_dir' variable for application 'tend' is undefined."),
             erlang:error({tend, undefined, lib_dir});
         {ok, LibDir} ->
-            add_lib_dir_paths(LibDir),
+            tend_code_server:add_lib_dir_paths(LibDir),
             Src = filename:join(LibDir, "src/"),
             Ebin = filename:join(LibDir, "ebin/"),
             filelib:ensure_dir(filename:join(Src,".ignore")),
@@ -35,6 +35,3 @@ setup_conf() ->
             application:set_env(tend, ebin, Ebin)
     end.
 
-add_lib_dir_paths(LibDir) ->
-    Dirs = tend_code_server_jr:get_tend_lib_dirs(LibDir),
-    code:add_pathsz(Dirs).

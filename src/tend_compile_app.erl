@@ -15,11 +15,14 @@ compile(App) ->
     io:format("Compiling app in ~s~n", [App]),
     case compile_type(App) of
         makefile ->
-            [chmod_rebar(filename:join(App, "rebar"))
-             || filelib:is_file(filename:join(App, "rebar"))],
+            [begin
+               chmod_rebar(filename:join(App, "rebar")),
+               alter_rebar_config(App)
+             end || filelib:is_file(filename:join(App, "rebar"))],
             run_cmd(App, "make");
         rebar ->
             chmod_rebar(filename:join(App, "rebar")),
+            alter_rebar_config(App),
             run_cmd(App, "./rebar get-deps"),
             run_cmd(App, "./rebar compile");
         emakefile ->
@@ -75,3 +78,18 @@ chmod_rebar(Rebar) ->
 
 find_ebins(App) ->
     string:tokens(os:cmd("find " ++ App ++ " -name ebin"), "\n").
+
+%% This is a messy and dangerous operation that changes the rebar.config
+%% file to move the deps up one level inside the lib_dir.
+%% Technically, good rebarized OTP apps that can be used in other
+%% rebarized apps shouldn't be impacted.
+alter_rebar_config(App) ->
+    File = filename:join(App, "rebar.config"),
+    case file:read_file(File) of
+        {ok, Bin} ->
+            {ok, Path} = application:get_env(tend, lib_dir),
+            file:write_file(File, [<<"{deps_dir, \"">>,Path,<<"\"}. ">>, Bin]);
+        {error, _} ->
+            %% no file, no caring. We can tolerate some garbage here and there.
+            ok
+    end.

@@ -1,9 +1,13 @@
 %%% Functions stolen from code_server.erl in kernel app
 %%% code_server doesn't export jack shit so to get the support,
 %%% we need to lift the functions from there.
--module(tend_code_server_jr).
+-module(tend_code_server).
 -include_lib("kernel/include/file.hrl").
--export([get_tend_lib_dirs/1]).
+-export([add_lib_dir_paths/1, get_tend_lib_dirs/1]).
+
+add_lib_dir_paths(LibDir) ->
+    Dirs = get_tend_lib_dirs(LibDir) -- code:get_path(),
+    code:add_pathsz(Dirs).
 
 get_tend_lib_dirs(Dir) ->
     case erl_prim_loader:list_dir(Dir) of

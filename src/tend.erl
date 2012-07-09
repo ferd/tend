@@ -85,4 +85,5 @@ compile_apps(Apps) ->
          ok = tend_compile_app:compile(A),
          ok = tend_compile_app:add_codepath(A)
      end || A <- Apps],
-    ok.
+     {ok, LibDir} = application:get_env(tend, lib_dir),
+     ok = tend_code_server:add_lib_dir_paths(LibDir).
