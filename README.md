@@ -18,6 +18,14 @@ To clean the repo:
 
     $ make clean
 
+To get started from scratch real fast:
+
+    $ git clone https://github.com/ferd/tend && cd tend && make all script
+    <output>
+    ...You can also add:
+        alias erl="erl -pa..."
+    as an alias to 'erl' to always have The Erl Next Door ready.
+
 How To Use it (as a developer)
 ------------------------------
 
