@@ -331,4 +331,8 @@ zip_load(_Config) ->
     {'EXIT',{undef,_}} = (catch erlpass:module_info()),
     tend:load("https://github.com/ferd/erlpass/zipball/0.1.2"),
     application:start(bcrypt),
-    <<_/binary>> = erlpass:hash("it works!!").
+    <<_/binary>> = erlpass:hash("it works!!"),
+    %% Downloading an app that has only a rebar.config file.
+    {'EXIT',{undef,_}} = (catch jsx:module_info()),
+    tend:load("https://github.com/talentdeficit/jsx/zipball/v1.3.1"),
+    jsx:module_info().

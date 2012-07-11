@@ -27,6 +27,15 @@ compile(App) ->
             run_cmd(App, "./rebar compile");
         emakefile ->
             run_cmd(App, "erl -make");
+        rebarless_rebar ->
+            case os:find_executable("rebar") of
+                false ->
+                    {error, {rebarless_rebar, no_rebar_in_path, App}};
+                Path ->
+                    alter_rebar_config(App),
+                    run_cmd(App, Path++" get-deps"),
+                    run_cmd(App, Path++" compile")
+            end;
         unknown ->
             {error, {unknown_compile_type, App}}
     end.
@@ -54,9 +63,14 @@ is_rebar(App) ->
 is_emakefile(App) ->
     case filelib:is_file(filename:join(App, "Emakefile")) of
         true  -> emakefile;
-        false -> unknown
+        false -> is_rebarless_rebar(App)
     end.
 
+is_rebarless_rebar(App) ->
+    case filelib:is_file(filename:join(App, "rebar.config")) of
+        true -> rebarless_rebar;
+        false -> unknown
+    end.
 
 run_cmd(Cwd, Cmd) ->
     Port = erlang:open_port({spawn, Cmd},
@@ -73,6 +87,9 @@ wait_for_exit(Port) ->
             wait_for_exit(Port)
     end.
 
+%% need to chmod because rebar by default only has the execution rights
+%% set to the user. We're not running as a user, so we need to change
+%% the mode.
 chmod_rebar(Rebar) ->
     os:cmd("chmod +x " ++ Rebar).
 
