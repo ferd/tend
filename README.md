@@ -85,7 +85,7 @@ _TEND_ will have created two directories inside `lib_dir`:  `src/` and `ebin/`. 
 
 Which works. Division has been removed.
 
-Better than this, _TEND_ can also handle OTP applications that have been packaged as a `.zip` file, iff they are possible to build with `make` (a `Makefile` is present), a local copy of `rebar` (`rebar` is in the directory), or using `Emakefiles` for Erlang code. For example, Cowboy 0.6.0 is compiled using a `Makefile`. If I just go on github and grab the `.zip` of its 0.6.0 tag (see [https://github.com/extend/cowboy/tags](https://github.com/extend/cowboy/tags)):
+Better than this, _TEND_ can also handle OTP applications that have been packaged as a `.zip` file, iff they are possible to build with `make` (a `Makefile` is present), a local copy of `rebar` (`rebar` is in the directory, or `rebar.config` is there and rebar is installed), or using `Emakefiles` for Erlang code. For example, Cowboy 0.6.0 is compiled using a `Makefile`. If I just go on github and grab the `.zip` of its 0.6.0 tag (see [https://github.com/extend/cowboy/tags](https://github.com/extend/cowboy/tags)):
 
     5> tend:load("https://github.com/extend/cowboy/zipball/0.6.0").
     Compiling app in /home/ferd/code/apps/extend-cowboy-0c2e222
