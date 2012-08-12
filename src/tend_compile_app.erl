@@ -1,5 +1,5 @@
 -module(tend_compile_app).
-
+-include_lib("kernel/include/file.hrl").
 -export([compile/1,
          add_codepath/1
         ]).
@@ -91,7 +91,8 @@ wait_for_exit(Port) ->
 %% set to the user. We're not running as a user, so we need to change
 %% the mode.
 chmod_rebar(Rebar) ->
-    os:cmd("chmod +x " ++ Rebar).
+    {ok, #file_info{mode = Mode}} = file:read_file_info(Rebar),
+    ok = file:change_mode(Rebar, Mode bor 8#00111).
 
 find_ebins(App) ->
     string:tokens(os:cmd("find " ++ App ++ " -name ebin"), "\n").
