@@ -76,11 +76,26 @@ dispatch(_Url, "text/plain", Body, Srcdir, _Libdir) ->
 dispatch(_Url, Ct, Body, _Srcdir, Libdir)
   when Ct =:= "application/zip" orelse Ct =:= "application/octet-stream" ->
     {ok, Files} = zip:unzip(list_to_binary(Body), [{cwd, Libdir}]),
-    [{app, guess_root(Files)}];
+    Root = guess_root(Files),
+    {App, Vsn} = find_app(Files),
+    NewRoot = filename:join(Libdir, App++"-"++Vsn),
+    ok = file:rename(Root, NewRoot),
+    [{app, NewRoot}];
 dispatch(Url, _Content_type, _Body, _Srcdir, _Libdir) ->
     [{unsupported_content_type, Url}].
 
-
+%% Finds the app file, then the app name and version, returned as
+%% an {App, Vsn} tuple of strings
+find_app([]) ->
+    erlang:error(app_file_not_found);
+find_app([File|Rest]) ->
+    case lists:suffix(".app", File) orelse lists:suffix(".app.src", File) of
+        true ->
+            {ok, [{application, App, Terms}]} = file:consult(File),
+            {atom_to_list(App), proplists:get_value(vsn, Terms, "")};
+        false ->
+            find_app(Rest)
+    end.
 
 load_links(Body) ->
     [_|_] = load_ls([mochiweb_html:parse(Body)]).

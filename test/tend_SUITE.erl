@@ -212,7 +212,7 @@ loader_test(Config) ->
     [{module, ModName}] = tend_loader:load_url(BaseURI ++ "ahtml/erl",
                                                Src,
                                                LibDir),
-    AppPath = filename:join(LibDir, "tend_test_app"),
+    AppPath = filename:join(LibDir, "tend_test_app-0.0.1"),
     [{app, AppPath}] = tend_loader:load_url(BaseURI ++ "module/tend_test_app.zip",
                                             Src,
                                             LibDir),
