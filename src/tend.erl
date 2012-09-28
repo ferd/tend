@@ -19,11 +19,17 @@ stop(_) -> ok.
 %%% API
 %% this function is added for an easy CLI start (erl -s tend)
 start() ->
-    ok = application:start(crypto),
-    ok = application:start(public_key),
-    ok = application:start(ssl),
-    ok = application:start(inets),
-    ok = application:start(tend).
+    ensure_started(crypto),
+    ensure_started(public_key),
+    ensure_started(ssl),
+    ensure_started(inets),
+    ensure_started(tend).
+
+ensure_started(App) ->
+    case application:start(App) of
+        ok -> ok;
+        {error, {already_started, App}} -> ok
+    end.
 
 %% -----------------------------------------------------------------------------
 %% API
@@ -87,3 +93,4 @@ compile_apps(Apps) ->
      end || A <- Apps],
      {ok, LibDir} = application:get_env(tend, lib_dir),
      ok = tend_code_server:add_lib_dir_paths(LibDir).
+
