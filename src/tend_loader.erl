@@ -22,6 +22,11 @@
 %%      as "erlang-tend".  For example <link rel="erlang-tend" href="fooo">.
 %%      Any scheme that httpc:request suports can be specified.
 -spec load_url(string(), file:name(), file:name()) -> [loaded()].
+load_url(Url = "file://"++_, Srcdir, Libdir) ->
+    {ok, #ex_uri{path=RawPath}, []} = ex_uri:decode(Url),
+    Path = fix_file_uri(RawPath),
+    {Type, Body} = read_file_uri(Path),
+    dispatch(Url, Type, Body, Srcdir, Libdir);
 load_url(Url, Srcdir, Libdir) ->
     {ok, Response} = httpc:request(Url),
     {{_Vsn, 200, "OK"},
@@ -31,6 +36,7 @@ load_url(Url, Srcdir, Libdir) ->
                                        proplists:lookup("content-type",
                                                         Headers)),
     dispatch(Url, Content_type, Body, Srcdir, Libdir).
+
 
 %% @doc Takes a the file list for a downloaded app and attempts to
 %%      determine the base for the app.
@@ -75,7 +81,7 @@ dispatch(_Url, "text/plain", Body, Srcdir, _Libdir) ->
     [{module, ModPath}];
 dispatch(_Url, Ct, Body, _Srcdir, Libdir)
   when Ct =:= "application/zip" orelse Ct =:= "application/octet-stream" ->
-    {ok, Files} = zip:unzip(list_to_binary(Body), [{cwd, Libdir}]),
+    {ok, Files} = zip:unzip(iolist_to_binary(Body), [{cwd, Libdir}]),
     Root = guess_root(Files),
     {App, Vsn} = find_app(Files),
     NewRoot = filename:join(Libdir, App++"-"++Vsn),
@@ -121,7 +127,24 @@ load_ls([{_Tag, _Attrs, Content} | Rest]) ->
 load_ls([_Other | Rest]) -> % html comments & other nodes
     load_ls(Rest).
 
+fix_file_uri("localhost/"++Path) ->  [$/ | Path];
+fix_file_uri(Path) -> Path.
 
+read_file_uri(Path) ->
+    Type = case zip:zip_open(Path) of
+        {error, _} ->
+            %% not a zip file, check for extension for html or erl
+            case filename:extension(Path) of
+                ".erl" -> "text/plain";
+                ".html" -> "text/html";
+                Other -> Other
+            end;
+        {ok, Handle} ->
+            zip:zip_close(Handle),
+            "application/zip"
+    end,
+    {ok, Bin} = file:read_file(Path),
+    {Type, Bin}.
 
 remove_encoding({"content-type", Ct}) ->
     %% Right now we aren't concerning outselves with
@@ -154,6 +177,7 @@ join_url(Base, Url) ->
     case Url of
         "https://" ++ _ -> Url;
         "http://"  ++ _ -> Url;
+        "file://"  ++ _ -> Url;
         "/"        ++ _ -> {ok, Uri, []} = ex_uri:decode(Base),
                            ex_uri:encode(Uri#ex_uri{path = Url});
         _               -> string:strip(Base, right, $/) ++ "/" ++ Url

@@ -1,6 +1,6 @@
 {application, tend,
  [{description, "The Erl Next Door -- Code loading on the fly for fun and learning"},
-  {vsn, "0.0.1"},
+  {vsn, "0.2.0"},
   {applications, [kernel, stdlib, ssl, inets]},
   {mod, {tend, []}},
   {env, [{lib_dir, "./apps/"}]} % where to save public apps by default

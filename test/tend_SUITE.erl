@@ -5,7 +5,7 @@
 
 all() ->
     [server_works, loading_lib_dirs, loader_test, guess_root,
-     compile_module, load_module, zip_load].
+     compile_module, load_module, zip_load, file_load].
 
 %%% INITS
 init_per_suite(Config) ->
@@ -84,6 +84,31 @@ init_per_testcase(zip_load, Config) ->
     [{lib_dir, OriginalLibDir},
      {sup, Pid}
      | Config];
+init_per_testcase(file_load, Config) ->
+    %% Create a flat HTML file according to the path
+    %% on disk
+    Data = ?config(data_dir, Config),
+    Priv = ?config(priv_dir, Config),
+    Page = Priv++"/page.html",
+    {ok, Bin1} = file:read_file(Data++"/page.html"),
+    Bin2 = re:replace(Bin1, "file1", "file://"++Data++"tend_file_test_mod.erl"),
+    Bin3 = re:replace(Bin2, "file2", "file://localhost"++Data++"tend_file_test_mod2.erl"),
+    ok = file:write_file(Page, Bin3),
+    %% Make a lib_dir custom in priv/ to test if we boot while
+    %% correctly loading libs.
+    application:start(crypto),
+    application:start(public_key),
+    application:start(ssl),
+    application:start(inets),
+    LibDir = filename:join(Priv, "file-load_testdir/"),
+    filelib:ensure_dir(LibDir++"/.ignore"),
+    OriginalLibDir = application:get_env(tend, lib_dir),
+    application:set_env(tend, lib_dir, LibDir),
+    {ok, Pid} = tend_sup:start_link(),
+    [{lib_dir, OriginalLibDir},
+     {sup, Pid},
+     {page, "file://"++Page}
+     | Config];
 init_per_testcase(_, Config) ->
     Config.
 
@@ -102,6 +127,11 @@ end_per_testcase(load_module, Config) ->
     unlink(Sup),
     exit(Sup, kill);
 end_per_testcase(zip_load, Config) ->
+    application:set_env(tend, lib_dir, ?config(lib_dir, Config)),
+    Sup = ?config(sup, Config),
+    unlink(Sup),
+    exit(Sup, kill);
+end_per_testcase(file_load, Config) ->
     application:set_env(tend, lib_dir, ?config(lib_dir, Config)),
     Sup = ?config(sup, Config),
     unlink(Sup),
@@ -336,3 +366,11 @@ zip_load(_Config) ->
     {'EXIT',{undef,_}} = (catch jsx:module_info()),
     tend:load("https://github.com/talentdeficit/jsx/zipball/v1.3.1"),
     jsx:module_info().
+
+file_load(Config) ->
+    Page = ?config(page, Config),
+    {'EXIT',{undef,_}} = (catch tend_file_test_mod:module_info()),
+    {'EXIT',{undef,_}} = (catch tend_file_test_mod2:module_info()),
+    tend:load(Page),
+    tend_file_test_mod:module_info(), % no crash for undef
+    tend_file_test_mod2:module_info().
